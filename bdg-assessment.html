@@ -975,6 +975,7 @@ function fallback(){
   ];
   var refs=state.industry==='energy'?['Burgenland Energie','Stadtwerke Gütersloh','e-Regio GmbH']:state.industry==='services'?['Weischer.JvB','Stadtwerke Gütersloh','KROMI Logistik']:['Weischer.JvB','KROMI Logistik','FOND OF'];
   return{platform,platform_confidence:Math.min(85,60+Math.abs(bs)),platform_reasoning:'Basierend auf gewähltem Scope und technischen Angaben. Pre-Sales-Validierung empfohlen.',recommended_areas:areas,top_value_driver:'Automatisierung der Planungszyklen spart Zeit – besonders Forecast wiederholt sich und summiert sich schnell.',jedox_pros:['Schnellere Implementierung','Niedrigere TCO','Excel-Integration nahtlos'],jedox_cons:['BI und Planung getrennt','Operative Komplexität begrenzt'],board_pros:['BI + Planning nativ integriert','Stark bei driver-based Forecast','Überlegene Szenario-Modellierung'],board_cons:['Längere Implementierungszeit','Höhere Investition'],planning_type_coverage:ptc,best_references:refs,key_risk:'Schnittstellen zu Vorsystemen und Verknüpfung der Module frühzeitig definieren.',next_step:'Discovery-Gespräch mit bdg Pre-Sales – Scope, Module und Submodule gemeinsam vertiefen.'};
+}
 
 function fmt(n){return Math.round(n).toLocaleString('de-DE');}
 
