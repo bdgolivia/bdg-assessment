@@ -829,6 +829,7 @@ function restart(){
 function calcValue(){
   var r=ri();
   var isXL=state.currentTool==='excel'||state.currentTool==='excel_legacy';
+  var isLegacy=state.currentTool==='excel_legacy'||state.currentTool==='dedicated';
 
   // Fully loaded hourly rate: Gehalt + 35% AG-Kosten + 10% Overhead
   var hr=Math.round(r.rate*1.45);
@@ -847,50 +848,62 @@ function calcValue(){
       baseH+=fH;
     }
     if(state.mfp.status==='tool'||state.mfp.status==='excel')
-      baseH+=(+state.planners||5)*40; // MFP realistically 1 full week per year per person
+      baseH+=(+state.planners||5)*40;
   }
   if(state.scopeFocus.indexOf('people')>-1){
     var pCycles={annual:1,semi:2,rolling:12}[state.people.freq]||2;
-    baseH+=(+state.people.planners||3)*60*pCycles; // HR planning is intensive
+    baseH+=(+state.people.planners||3)*60*pCycles;
   }
   if(state.scopeFocus.indexOf('cs')>-1)
-    baseH+=(+state.cs.agents/30)*25; // ~25h per 30 agents per year for manual CS planning
+    baseH+=(+state.cs.agents/30)*25;
 
-  // Add analyst reporting overhead
   baseH+=Math.max(0,+state.analysts||3)*40;
 
-  // Apply coordination factor
   var totalH=Math.round(baseH*coordFactor);
 
-  // Savings: 55% of total hours (Hackett Group / KPMG benchmark for CPM implementations)
+  // Savings: 55% of total hours (Hackett Group / KPMG CPM benchmark)
   var savedH=Math.round(totalH*0.55);
 
-  // Error & rework cost: 25% for Excel (EuSpRIG: 88% of spreadsheets have errors), 10% for other
+  // Error & rework: 25% Excel, 10% other (EuSpRIG)
   var errRate=isXL?0.25:0.10;
   var errV=Math.round(totalH*hr*errRate);
 
-  // Direct time saving value
+  // Direct time saving
   var dirV=Math.round(savedH*hr);
 
-  // Strategic premium: 10% of direct value for faster decisions, better forecast quality
+  // Faster decisions / forecast quality premium (10%)
   var stratV=Math.round(dirV*0.10);
 
-  var total=dirV+errV+stratV;
+  // Audit & Jahresabschluss-Beschleunigung
+  // Durchschnittlich 3-5 Tage schnellerer Close × Finance-Team
+  var finPeople=Math.max(2,+state.planners||5);
+  var auditV=Math.round(finPeople*4*8*hr*0.5); // 4 Tage × 50% Effizienzgewinn
 
-  // Ensure a sensible minimum for any real company
-  var scopeCount=state.scopeFocus.length;
-  var minVal=scopeCount*18000; // at least €18k per scope area
+  // IT-Konsolidierung: bestehende Tools & Lizenzen die abgelöst werden
+  // Annahme: mind. 1 Legacy-Tool oder Excel-Infrastruktur kostet €8k–25k/Jahr
+  var itV=isXL?12000:isLegacy?20000:8000;
+
+  // Working Capital Optimierung durch besseren CF-Forecast
+  // Konservativ: 1% des Jahresumsatzes (Mittelstand ~€20M → €200k × 1% = €2k freigegeben)
+  // Wir nehmen Zinsvorteil: €50k–200k gebundenes Kapital × 4% Zinssatz
+  var wcV={gt2000:8000,'500-2000':5000,'100-500':3000,lt100:1500}[state.employees]||3000;
+
+  var total=dirV+errV+stratV+auditV+itV+wcV;
+
+  // Minimum per scope area
+  var scopeCount=Math.max(1,state.scopeFocus.length);
+  var minVal=scopeCount*28000;
   total=Math.max(total,minVal);
-  dirV=Math.max(dirV,Math.round(minVal*0.6));
+  dirV=Math.max(dirV,Math.round(minVal*0.5));
 
   var days=Math.round(savedH/8);
   var dpp=Math.round(days/Math.max(1,(+state.planners||5)+(+state.analysts||3)));
-  var tcoi=Math.round(total*3*1.15); // 3 years + 15% growth factor
+  var tcoi=Math.round(total*3*1.15);
   var impl={gt2000:75000,'500-2000':55000,'100-500':38000,lt100:28000}[state.employees]||38000;
   var pb=Math.round((impl/Math.max(1,total))*12);
   var fSaved=fH>0?Math.round(fH*coordFactor*0.55*hr):0;
 
-  return{hr,savedH,dirV,errV,stratV,total,days,dpp,tcoi,pb,impl,isXL,r,fSaved,totalH};
+  return{hr,savedH,dirV,errV,stratV,auditV,itV,wcV,total,days,dpp,tcoi,pb,impl,isXL,r,fSaved,totalH};
 }
 
 // ── AI ──
@@ -942,7 +955,7 @@ function buildPrompt(r){
   if(sf.indexOf('cs')>-1)pts+='CS|Control: '+state.cs.agents+' Agents, Pains: '+state.csPains.join(',')+'\n';
   if(sf.indexOf('energy')>-1)pts+='Energy scope: '+state.scope.filter(function(s){return['energie','mengen','netz','cx'].indexOf(s)>-1;}).join(',')+'\n';
 
-  return 'Du bist Senior Sales Analyst bei bdg. Analysiere GENAU diese Daten. NUR valides JSON.\n\nBranche: '+state.industry+' | €'+r.rate+'/h | MA: '+state.employees+' | Einheiten: '+state.entities+' | Tool: '+state.currentTool+'\nScope: '+sf.join(', ')+'\n'+pts+'\nDetails: '+state.scope.join(', ')+' | Fokus: '+state.planningFocus+' | Pains: '+state.pains.join(', ')+'\nVorsysteme: '+state.sourceSystems.join(', ')+(state.otherInputTool?' +'+state.otherInputTool:'')+'\nBI: '+state.biReplacement+' | Excel: '+state.excelAffinity+' | Workflow: '+state.workflowComplexity+' | Deploy: '+state.deployment+'\nUser: '+state.admins+' Admins, '+state.planners+' Planer, '+state.analysts+' Analysten, '+state.viewers+' Viewer\n\nPLATTFORM: Jedox=FP&A/Excel/Cloud/Mittelstand/People | BOARD=BI+Planning/Ops/viele Einheiten/OnPrem\n\nECHTE MODUL-STRUKTUR:\nbdgONE Finance CORE: GuV/Profitcenter, Bilanz, indirekter Cashflow\nbdgONE Finance SUBMODULE: OPEX-Planung | CAPEX/Investitionen (inkl. AFA) | Darlehensplanung | Allocation/COA (Leistungsverrechnung bis 8 Zyklen) | Rückstellungsplanung\nbdgONE People CORE: Personalkosten & FTE, Headcount & Vacancy, Elternzeit/Befristungen/Backfills, Kostenstellenplanung\nbdgONE People EXTENSIONS: Recruiting-Planung | Personaleinsatz/Schichtplanung | direkte Source-System-Integration\nbdgONE Energy CORE: Tarif- & Preisplanung, Mengen/Lastprofile, Netzkosten\nbdgONE Energy EXTENSION: CS|Control\nCS|Control CORE: Kapazitätsplanung je Campaign/Client, KPI-Dashboards, Cost-to-Serve | EXTENSION: Finance-Brücke/P&L\nKonsolidierung: Konzernkonsolidierung | Dashboards: Self-Service BI\nReferenzen: Burgenland Energie, Stadtwerke Gütersloh, 50Hertz, e-Regio, FOND OF, Weischer.JvB, KROMI Logistik, 1&1(BOARD)\n\nWichtig: Empfehle pro Bereich Core-Module UND nur die wirklich relevanten Submodule basierend auf Assessment. Nicht relevante Submodule weglassen.\n\nNur JSON:\n{"platform":"Jedox|BOARD|Beide geeignet","platform_confidence":0-100,"platform_reasoning":"2-3 Sätze","recommended_areas":[{"area":"bdgONE Finance|bdgONE People|bdgONE Energy|CS|Control|Konsolidierung|Dashboards","priority":"hoch|mittel","core_modules":["Modul 1","Modul 2"],"submodules":[{"name":"Name","why":"1 Satz warum relevant","priority":"empfohlen|optional"}],"area_note":"1 Satz Gesamtbegründung"}],"top_value_driver":"1 Satz","jedox_pros":["3 Punkte"],"jedox_cons":["2 Punkte"],"board_pros":["3 Punkte"],"board_cons":["2 Punkte"],"planning_type_coverage":[{"type":"Budget / Jahresplanung","icon":"📋","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"},{"type":"Rolling Forecast","icon":"🔄","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"},{"type":"Mittelfristplanung","icon":"📈","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"},{"type":"People-Planung","icon":"👥","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"},{"type":"Energy-Planung","icon":"⚡","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"},{"type":"CS|Control","icon":"📞","status":"gut abgedeckt|machbar|Lücke|nicht relevant","note":"1 Satz"}],"best_references":["max 3"],"key_risk":"1 Satz","next_step":"1-2 Sätze"}';
+  return 'Du bist Senior Sales Analyst bei bdg. WICHTIG: Antworte AUSSCHLIESSLICH mit einem einzigen validen JSON-Objekt. Keine Erklärungen, kein Markdown, keine Zeilenumbrüche innerhalb von String-Werten. Alle Strings müssen auf einer Zeile bleiben.\n\nBranche: '+state.industry+' | €'+r.rate+'/h | MA: '+state.employees+' | Einheiten: '+state.entities+' | Tool: '+state.currentTool+'\nScope: '+sf.join(', ')+'\n'+pts+'\nDetails: '+state.scope.join(', ')+' | Fokus: '+state.planningFocus+' | Pains: '+state.pains.join(', ')+'\nVorsysteme: '+state.sourceSystems.join(', ')+(state.otherInputTool?' +'+state.otherInputTool:'')+'\nBI: '+state.biReplacement+' | Excel: '+state.excelAffinity+' | Workflow: '+state.workflowComplexity+' | Deploy: '+state.deployment+'\nUser: '+state.admins+' Admins, '+state.planners+' Planer, '+state.analysts+' Analysten, '+state.viewers+' Viewer\n\nPLATTFORM: Jedox=FP&A/Excel/Cloud/Mittelstand/People | BOARD=BI+Planning/Ops/viele Einheiten/OnPrem\n\nMODULE:\nbdgONE Finance CORE: GuV/Profitcenter, Bilanz, indirekter Cashflow. SUBMODULE: OPEX-Planung, CAPEX/Investitionen (inkl. AFA), Darlehensplanung, Allocation/COA, Rueckstellungsplanung\nbdgONE People CORE: Personalkosten & FTE, Headcount & Vacancy, Kostenstellenplanung. EXTENSIONS: Recruiting, Personaleinsatz/Schichtplanung, Source-System-Integration\nbdgONE Energy CORE: Tarif- & Preisplanung, Mengen/Lastprofile, Netzkosten. EXTENSION: CS|Control\nCS|Control CORE: Kapazitaetsplanung, KPI-Dashboards, Cost-to-Serve. EXTENSION: Finance-Bruecke\nKonsolidierung: Konzernkonsolidierung. Dashboards: Self-Service BI\nReferenzen: Burgenland Energie, Stadtwerke Guetersloh, 50Hertz, e-Regio, FOND OF, Weischer.JvB, KROMI Logistik, 1&1\n\n{"platform":"Jedox|BOARD|Beide geeignet","platform_confidence":0-100,"platform_reasoning":"2-3 Saetze ohne Sonderzeichen","recommended_areas":[{"area":"Name","priority":"hoch|mittel","core_modules":["Modul"],"submodules":[{"name":"Name","why":"1 Satz","priority":"empfohlen|optional"}],"area_note":"1 Satz"}],"top_value_driver":"1 Satz","jedox_pros":["Punkt 1","Punkt 2","Punkt 3"],"jedox_cons":["Punkt 1","Punkt 2"],"board_pros":["Punkt 1","Punkt 2","Punkt 3"],"board_cons":["Punkt 1","Punkt 2"],"planning_type_coverage":[{"type":"Budget / Jahresplanung","icon":"📋","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Rolling Forecast","icon":"🔄","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Mittelfristplanung","icon":"📈","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"People-Planung","icon":"👥","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Energy-Planung","icon":"⚡","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"CS|Control","icon":"📞","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"}],"best_references":["max 3"],"key_risk":"1 Satz","next_step":"1-2 Saetze"}';
 }
 
 function fallback(){
@@ -1078,8 +1091,10 @@ function renderResults(rec){
     '<div class="st">Aufschlüsselung des Einsparpotenzials</div>'+
     '<div class="vg">'+
       '<div class="vc"><div class="vl">Zeitkosten-Einsparung</div><div class="vn">€ '+fmt(v.dirV)+'</div><div class="vno">'+v.savedH+'h eingespart @ €'+v.hr+'/h</div></div>'+
-      '<div class="vc"><div class="vl">Fehler & Rework eliminiert</div><div class="vn">€ '+fmt(v.errV)+'</div><div class="vno">'+(v.isXL?'25%':'10%')+' Fehlerrate · EuSpRIG-Benchmark</div></div>'+
-      '<div class="vc"><div class="vl">Entscheidungsqualität & Speed</div><div class="vn">€ '+fmt(v.stratV)+'</div><div class="vno">Schnellere Forecasts, bessere Planungsbasis</div></div>'+
+      '<div class="vc"><div class="vl">Fehler & Rework eliminiert</div><div class="vn">€ '+fmt(v.errV)+'</div><div class="vno">'+(v.isXL?'25%':'10%')+' Fehlerrate · EuSpRIG</div></div>'+
+      '<div class="vc"><div class="vl">Audit & schnellerer Close</div><div class="vn">€ '+fmt(v.auditV)+'</div><div class="vno">Ø 4 Tage schnellerer Jahresabschluss</div></div>'+
+      '<div class="vc"><div class="vl">IT-Konsolidierung</div><div class="vn">€ '+fmt(v.itV)+'</div><div class="vno">Ablösung bestehender Tools & Lizenzen</div></div>'+
+      '<div class="vc"><div class="vl">Entscheidungsqualität & Speed</div><div class="vn">€ '+fmt(v.stratV)+'</div><div class="vno">Schnellere Forecasts, bessere Basis</div></div>'+
       '<div class="vc hi"><div class="vl">Gesamt pro Jahr</div><div class="vn">€ '+fmt(v.total)+'</div><div class="vno">konservative Schätzung</div></div>'+
     '</div>'+
 
@@ -1093,7 +1108,7 @@ function renderResults(rec){
     (missingScopes.length>0?
     '<div class="expand-panel"><div class="expand-head" onclick="toggleExpand(this)"><div class="expand-title">🔍 Scope erweitern – weiteren Bereich schnell einschätzen</div><div class="expand-arrow" id="exp-arrow">▼</div></div><div class="expand-body" id="exp-body"><div style="font-size:12px;color:#888;margin-bottom:.75rem">Welchen Bereich möchtest du noch dazunehmen?</div><div class="expand-scope-btns">'+expandBtns+'</div><div id="mini-forms"></div></div></div>':'')+
 
-    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze basieren auf Stepstone/Kienbaum 2024 (Gehalt ÷ 1.760h) × 1,45 für AG-Kosten & Overhead. Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG-Studien). Koordinationsaufwand: +30% auf direkte Planungsstunden. Alle Werte sind konservative Schätzungen und dienen als Gesprächsgrundlage – kein verbindliches Angebot.</div>'+
+    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Audit-Einsparung: 4 Tage schnellerer Close. IT-Konsolidierung: Schätzung abgelöster Tool-Lizenzen. Alle Werte konservativ – dienen als Gesprächsgrundlage.</div>'+
     '<div style="margin-top:1.25rem"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
 }
 
