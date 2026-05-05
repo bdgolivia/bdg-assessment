@@ -271,7 +271,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <span class="sc-name">People / HR</span>
           <span class="sc-desc">Personalkosten, FTE-Planung, Headcount, Personaleinsatz</span>
         </button>
-        <button class="scope-card" onclick="toggleScope('energy',this)">
+        <button id="scope-card-energy" class="scope-card" onclick="toggleScope('energy',this)">
           <span class="sc-icon">⚡</span>
           <span class="sc-name">Energy</span>
           <span class="sc-desc">Tarife, Lastprofile, Mengenplanung, Netzkosten</span>
@@ -776,9 +776,23 @@ function updateScopeSections(){
     var s=document.getElementById('sec-'+k);
     if(s){if(state.scopeFocus.indexOf(k)>-1)s.classList.add('visible');else s.classList.remove('visible');}
   });
-  // HR Vorsysteme nur zeigen wenn People gewählt
   var hrSec=document.getElementById('hr-systems-section');
   if(hrSec){hrSec.style.display=state.scopeFocus.indexOf('people')>-1?'block':'none';}
+
+  // Energy-Scope-Karte nur für relevante Branchen zeigen
+  var energyIndustries=['energy','manufacturing','housing','other'];
+  var energyCard=document.getElementById('scope-card-energy');
+  if(energyCard){
+    var show=energyIndustries.indexOf(state.industry)>-1||state.industry==='';
+    energyCard.style.display=show?'':'none';
+    // Wenn Branche wechselt und Energy nicht mehr relevant: aus Scope entfernen
+    if(!show&&state.scopeFocus.indexOf('energy')>-1){
+      state.scopeFocus.splice(state.scopeFocus.indexOf('energy'),1);
+      energyCard.classList.remove('on');
+      var sec=document.getElementById('sec-energy');
+      if(sec)sec.classList.remove('visible');
+    }
+  }
 }
 
 // ── PT status ──
@@ -802,7 +816,7 @@ function pickPT(el,type,field,val){
 function pick(el,key,val,multi){
   if(multi){var i=state[key].indexOf(val);if(i>-1){state[key].splice(i,1);el.classList.remove('on');}else{state[key].push(val);el.classList.add('on');}}
   else{el.closest('.chips').querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});state[key]=val;el.classList.add('on');}
-  if(key==='industry')updateIndustryLabels();
+  if(key==='industry'){updateIndustryLabels();updateScopeSections();}
 }
 
 function toggleOtherInput(el){
