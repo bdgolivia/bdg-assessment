@@ -681,8 +681,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="loading" class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="lt">Anforderungen werden analysiert…</div></div>
       <div id="results" style="display:none"></div>
     </div>
+
+    <!-- ── STEP 6: Aufwandsschätzung ── -->
+    <div class="step" id="s6">
+      <div id="effort-content"></div>
+    </div>
+
   </div>
-  <div class="footer">better decisions group · bdg · Sales Qualification Tool · v5.0</div>
+  <div class="footer">better decisions group · bdg · Sales Qualification Tool · v5.1</div>
 </div>
 
 <script>
@@ -702,7 +708,7 @@ var state={
   excelAffinity:'',workflowComplexity:'',deployment:'',itInvolvement:'',
   admins:1,planners:5,analysts:3,viewers:20
 };
-var cur=1,tot=5;
+var cur=1,tot=6;
 
 var IR={
   energy:{rate:43,label:'Energy & Utilities'},finance:{rate:49,label:'Finance & Banking'},
@@ -957,6 +963,7 @@ function goTo(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function next(){if(cur===4){goTo(5);compute();return;}if(cur<tot)goTo(cur+1);}
+function goToEffort(){goTo(6);renderEffortPage();}
 function back(){if(cur>1)goTo(cur-1);}
 
 function restart(){
@@ -1261,131 +1268,346 @@ function renderResults(rec){
     '<div class="expand-panel"><div class="expand-head" onclick="toggleExpand(this)"><div class="expand-title">🔍 Scope erweitern – weiteren Bereich schnell einschätzen</div><div class="expand-arrow" id="exp-arrow">▼</div></div><div class="expand-body" id="exp-body"><div style="font-size:12px;color:#888;margin-bottom:.75rem">Welchen Bereich möchtest du noch dazunehmen?</div><div class="expand-scope-btns">'+expandBtns+'</div><div id="mini-forms"></div></div></div>':'')+
 
     '<hr style="border:none;border-top:1px solid #f0f0ee;margin:1.5rem 0">'+
-    '<div class="st">Erste Aufwandsschätzung</div>'+
-    buildEffortTable(rec)+
 
-    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Aufwandsschätzung basiert auf bdg-Projektvorlagen – alle Werte indikativ und intern, kein verbindliches Angebot.</div>'+
+    '<div style="background:#e6f4f0;border:1px solid #9ED8C8;border-radius:12px;padding:1.2rem 1.4rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">'+
+    '<div><div style="font-size:14px;font-weight:600;color:#0F6E56;margin-bottom:.2rem">Erste Aufwandsschätzung erstellen</div>'+
+    '<div style="font-size:12px;color:#5a9e88">PT-Breakdown pro Modul · Lizenzkosten · editierbar · Excel-Export</div></div>'+
+    '<button onclick="goToEffort()" style="padding:10px 20px;background:#0F6E56;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap">Aufwandsschätzung →</button>'+
+    '</div>'+
+
+    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Alle Werte konservativ – dienen als Gesprächsgrundlage.</div>'+
     '<div style="margin-top:1.25rem"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
 }
 
-function buildEffortTable(rec){
-  var RATE=1400; // bdg Tagessatz blended rate laut KWS-Vorlage
-  var ss=state.sourceSystems;
+// ── Effort Estimation Page ──
+var effortState={pkg:'premium',rate:1650,discount:0.10};
+
+function renderEffortPage(){
+  var pkg=effortState.pkg;
+  var rate=effortState.rate;
+  var disc=effortState.disc||0;
+  var netRate=Math.round(rate*(1-disc));
+
   var sf=state.scopeFocus;
+  var ss=state.sourceSystems;
   var ent=state.entities;
   var entMult=ent==='gt15'?1.4:ent==='6-15'?1.2:ent==='2-5'?1.05:1.0;
   var wfAdd=state.workflowComplexity==='high'?2:state.workflowComplexity==='medium'?1:0;
   var totalUsers=+state.admins+(+state.planners)+(+state.analysts)+(+state.viewers);
-  var urgency=state.goLive==='lt3m'?1.2:1.0; // Urgency buffer
+  var urgency=state.goLive==='lt3m'?1.2:1.0;
 
-  // Datenintegration: pro Vorsystem
+  // Package multipliers
+  var pkgMult={essential:0.75,premium:1.0,enterprise:1.35}[pkg]||1.0;
+
+  // ── LIZENZPREISE (annual recurring) ──
+  var licPrices={
+    finance:{essential:30000,premium:40000,enterprise:50000},
+    cashflow:{essential:20000,premium:25000,enterprise:30000},
+    people:{essential:15000,premium:20000,enterprise:25000},
+    energy:{essential:20000,premium:25000,enterprise:30000},
+    cs:{essential:15000,premium:20000,enterprise:25000},
+    konsolidierung:{essential:10000,premium:15000,enterprise:20000}
+  };
+
+  // ── BUILD PT PER MODULE (based on real bdg templates) ──
   var diMap={'sap_s4':12,'sap_ecc':14,'dynamics':8,'datev':5,'navision':6,'sage':4,
-             'workday':7,'sap_hcm':8,'personio':4,'other_hr':5,
-             'power_bi':3,'tableau':3,'excel_csv':2,'other_erp':7,'crm':4,'other_input':3};
-  var diItems=[];
+    'workday':7,'sap_hcm':8,'personio':4,'other_hr':5,
+    'power_bi':3,'tableau':3,'excel_csv':2,'other_erp':7,'crm':4,'other_input':3};
+  var diLabels={'sap_s4':'SAP S/4HANA','sap_ecc':'SAP ECC/R3','dynamics':'MS Dynamics',
+    'datev':'DATEV','navision':'Navision/BC','sage':'Sage','workday':'Workday',
+    'sap_hcm':'SAP HCM/SF','personio':'Personio','other_hr':'Sonst. HR',
+    'power_bi':'Power BI','tableau':'Tableau','excel_csv':'Excel/CSV',
+    'other_erp':'Sonst. ERP','crm':'CRM','other_input':state.otherInputTool||'Sonst. Tool'};
+
+  // Collect all rows for table and Excel
+  var rows=[];
+  var licRows=[];
+
+  function addRow(cat,label,pt,note,isSec){
+    rows.push({cat:cat,label:label,pt:Math.round(pt*pkgMult),note:note||'',isSec:isSec||false});
+  }
+  function addLic(module,label){
+    var p=licPrices[module];
+    if(!p)return;
+    licRows.push({label:label,annual:p[pkg]||p.premium});
+  }
+
+  // 1. Scoping
+  addRow('Scoping','Kick-Off & Projektsetup',2,'Projektdokumente, Tools, Kommunikationsstruktur');
+  addRow('Scoping','Workshops & Anforderungskonzept',state.entities==='gt15'?5:state.workflowComplexity==='high'?4:3,'Scoping, Systemarchitektur, Dokumentation');
+
+  // 2. Datenintegration
   ss.forEach(function(s){
-    if(diMap[s]){
-      var label={'sap_s4':'SAP S/4HANA','sap_ecc':'SAP ECC/R3','dynamics':'Microsoft Dynamics',
-        'datev':'DATEV','navision':'Navision/Business Central','sage':'Sage','workday':'Workday',
-        'sap_hcm':'SAP HCM/SuccessFactors','personio':'Personio','other_hr':'Sonstiges HR-System',
-        'power_bi':'Power BI','tableau':'Tableau','excel_csv':'Excel/CSV-Dateien',
-        'other_erp':'Sonstiges ERP','crm':'CRM','other_input':'Sonstiges mit Eingabe'}[s]||s;
-      diItems.push({label:label,days:diMap[s],note:'Master- & Faktdaten'});
+    if(diMap[s])addRow('Datenintegration',diLabels[s]||s,diMap[s],'Master- & Faktdaten Anbindung');
+  });
+  if(state.otherInputTool&&ss.indexOf('other_input')>-1)
+    rows[rows.length-1].label=state.otherInputTool;
+  if(ss.length===0||ss.indexOf('unknown')>-1)
+    addRow('Datenintegration','Datenintegration (noch zu klären)',8,'Vorsysteme noch offen');
+
+  // 3. bdgONE Finance
+  if(sf.indexOf('finance')>-1){
+    addRow('bdgONE Finance','Navigation, Design & App-Cockpit',3,'Standardlayout, Corporate Design');
+    addRow('bdgONE Finance','Berechtigungen & Planungsworkflow',3,'Standardrollen, Status- & Berechtigungssteuerung');
+    addRow('bdgONE Finance','Integrierte Finanzplanung (GuV, Bilanz, CF)',Math.round(10*entMult),'inkl. Überleitungslogik, Zahlungsziele, Versionierung');
+    if(state.budget.dir==='bottomup'||state.budget.dir==='hybrid')
+      addRow('bdgONE Finance','Top-Down / Bottom-Up Planungsprozess',3,'Kombinierte Planungsrunden');
+    if(state.forecast.status!=='no'&&state.forecast.status!=='')
+      addRow('bdgONE Finance','Rolling Forecast'+(state.forecast.method==='driver'?' (treiber-basiert)':''),state.forecast.method==='driver'?8:4,
+        {monthly:'monatlich',quarterly:'quartalsweise'}[state.forecast.freq]||'');
+    if(state.mfp.status!=='no'&&state.mfp.status!==''){
+      var mfpPT=4+(state.mfp.scenarios==='wanted'||state.mfp.scenarios==='yes'?3:0);
+      addRow('bdgONE Finance','Mittelfristplanung'+(state.mfp.horizon?' ('+state.mfp.horizon+')':''),mfpPT,
+        state.mfp.link==='no'?'Verknüpfung zu Budget noch zu klären':'verknüpft mit Jahresplanung');
+    }
+    if(state.scope.indexOf('investitionen')>-1)
+      addRow('bdgONE Finance','CAPEX / Investitionsplanung',6,'inkl. AFA-Berechnung & Buchwertentwicklung');
+    if(state.scope.indexOf('profitability')>-1)
+      addRow('bdgONE Finance','Allocation / Sekundärkostenplanung',7,'Innerbetriebliche Leistungsverrechnung bis 8 Zyklen');
+    addRow('bdgONE Finance','Financial Dashboards & Statements',Math.round(3+(+state.analysts||3)*0.8),'GuV, Bilanz, CF-Reports & individuelle Dashboards');
+    if(state.scope.indexOf('konsolidierung')>-1){
+      addRow('bdgONE Finance','Managementkonsolidierung',Math.round(10*entMult),'Intercompany, Eliminierung, '+ent+' Einheiten');
+      addLic('konsolidierung','Konsolidierung Add-on (jährlich)');
+    }
+    addLic('finance','bdgONE Finance / PnL (jährlich)');
+    addLic('cashflow','bdgONE Cashflow (jährlich)');
+  }
+
+  // 4. bdgONE People
+  if(sf.indexOf('people')>-1){
+    addRow('bdgONE People','Personalkosten & FTE-Planung',Math.round(8*(state.people.planners>5?1.2:1.0)),'inkl. Gehalt, Nebenkosten, Boni');
+    addRow('bdgONE People','Headcount & Vacancy-Planung',3,'Eintritte, Austritte, Backfills, Elternzeit');
+    addRow('bdgONE People','Kostenstellenplanung & Schnittstelle Finance',3,'automatischer Transfer Personalkosten → GuV');
+    if(state.scope.indexOf('recruiting')>-1)
+      addRow('bdgONE People','Extension: Recruiting-Planung',4,'Vakanzen, Hiring Plan, Backfill-Logik');
+    if(state.scope.indexOf('capacity')>-1)
+      addRow('bdgONE People','Extension: Personaleinsatz / Schichtplanung',5,'Kapazitätsplanung je Campaign/Client');
+    addLic('people','bdgONE People (jährlich)');
+  }
+
+  // 5. bdgONE Energy
+  if(sf.indexOf('energy')>-1){
+    addRow('bdgONE Energy','Tarif- & Preisplanung',6,'Preismodelle, Staffeln, Produktvarianten');
+    addRow('bdgONE Energy','Mengen- & Lastprofilplanung',6,'Lastprofile, Verbräuche, Mengenplanung');
+    if(state.scope.indexOf('netz')>-1)
+      addRow('bdgONE Energy','Netzkosten-Planung',5,'Netzentgelte, Abgaben, Umlagen');
+    addLic('energy','bdgONE Energy (jährlich)');
+  }
+
+  // 6. CS|Control
+  if(sf.indexOf('cs')>-1){
+    addRow('CS|Control','Kapazitätsplanung je Campaign/Client',5,'FTE-Bedarf, Peaks, Unterauslastung');
+    addRow('CS|Control','KPI-Dashboards (Calls, CSAT, Produktivität)',5,'Echtzeit-KPIs, Schwellwert-Alerts');
+    addRow('CS|Control','Cost-to-Serve je Client',3,'Kostenträgerrechnung');
+    addRow('CS|Control','Finance-Brücke / P&L-Integration',4,'Transfer in Finance-GuV');
+    addLic('cs','CS|Control (jährlich)');
+  }
+
+  // 7. Querschnitt
+  addRow('Querschnitt','Berechtigungskonzept & User-Setup',Math.round(1+totalUsers/25),totalUsers+' User gesamt');
+  addRow('Querschnitt','Key-User Training & Dokumentation',Math.round(2+totalUsers/40),'');
+  addRow('Querschnitt','UAT & Abnahmeunterstützung',3,'');
+
+  // Calc totals
+  var implPT=rows.reduce(function(a,r){return a+r.pt;},0);
+  if(urgency>1)implPT=Math.round(implPT*urgency);
+  var pmPT=Math.round(implPT*0.18);
+  var hyperPT=Math.round(implPT*0.10);
+  var grandPT=implPT+pmPT+hyperPT;
+  var grandImpl=grandPT*netRate;
+  var totalLic=licRows.reduce(function(a,r){return a+r.annual;},0);
+  var totalBudget=grandImpl+totalLic;
+
+  // Build HTML
+  var html='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">'+
+    '<div><div style="font-size:20px;font-weight:500;color:#1a1a18;margin-bottom:.2rem">Aufwandsschätzung</div>'+
+    '<div style="font-size:12px;color:#999">Indikativ · intern · basierend auf bdg-Projektvorlagen</div></div>'+
+    '<button onclick="back()" style="padding:8px 14px;border:1px solid #e0e0db;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f3;font-family:inherit;color:#555">← Zurück zur Empfehlung</button>'+
+  '</div>'+
+
+  // Package + Rate selector
+  '<div style="background:#f8f8f6;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.25rem;border:1px solid #e8e8e5">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:.85rem">'+
+      ['essential','premium','enterprise'].map(function(p){
+        var label={'essential':'Essential','premium':'Premium','enterprise':'Enterprise'}[p];
+        var active=pkg===p;
+        return '<button onclick="setEffortPkg(\''+p+'\')" style="padding:8px;border-radius:8px;border:1.5px solid '+(active?'#1D9E75':'#e0e0db')+';background:'+(active?'#e6f4f0':'#fff')+';color:'+(active?'#0F6E56':'#666')+';font-size:12px;font-weight:'+(active?'600':'400')+';cursor:pointer;font-family:inherit">'+label+'</button>';
+      }).join('')+
+    '</div>'+
+    '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">'+
+      '<div style="font-size:12px;color:#888;flex-shrink:0">Tagessatz (€):</div>'+
+      '<input id="rate-input" type="number" value="'+rate+'" min="500" max="5000" step="50" '+
+        'oninput="effortState.rate=+this.value;effortState.disc=0;document.getElementById(\'net-rate\').textContent=this.value;renderEffortPage()" '+
+        'style="width:90px;padding:5px 8px;border:1px solid #e0e0db;border-radius:6px;font-size:13px;font-family:inherit">'+
+      '<div style="font-size:12px;color:#aaa">· Listenpreis: €1.650 · Std.-Rabatt 10%: €1.485</div>'+
+      '<button onclick="effortState.rate=1485;renderEffortPage()" style="font-size:11px;color:#0F6E56;border:none;background:none;cursor:pointer;font-family:inherit;text-decoration:underline">Rabatt anwenden</button>'+
+    '</div>'+
+  '</div>'+
+
+  // Summary boxes
+  '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.25rem">'+
+    '<div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:12px;padding:1rem;text-align:center">'+
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:.3rem">Implementierung</div>'+
+      '<div style="font-size:26px;font-weight:600;color:#fff">'+grandPT+' PT</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,.7)">€ '+fmt(grandImpl)+'</div>'+
+    '</div>'+
+    '<div style="background:#e8f4ff;border:1px solid #b0d4ff;border-radius:12px;padding:1rem;text-align:center">'+
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#185FA5;margin-bottom:.3rem">Lizenz p.a.</div>'+
+      '<div style="font-size:26px;font-weight:600;color:#185FA5">€ '+fmt(totalLic)+'</div>'+
+      '<div style="font-size:12px;color:#888">wiederkehrend / Jahr</div>'+
+    '</div>'+
+    '<div style="background:#fff8ec;border:1px solid #ffd980;border-radius:12px;padding:1rem;text-align:center">'+
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a07000;margin-bottom:.3rem">Gesamt Jahr 1</div>'+
+      '<div style="font-size:26px;font-weight:600;color:#a07000">€ '+fmt(totalBudget)+'</div>'+
+      '<div style="font-size:12px;color:#888">Impl. + Lizenz</div>'+
+    '</div>'+
+  '</div>'+
+
+  // License table
+  (licRows.length>0?
+  '<div style="margin-bottom:1rem"><div class="st">Lizenzkosten (jährlich, wiederkehrend)</div>'+
+  '<table class="eff-table"><thead><tr><th>Produkt / Modul</th><th class="r">Paket</th><th class="r">Listenpreis p.a.</th></tr></thead><tbody>'+
+  licRows.map(function(r){
+    return '<tr><td>'+r.label+'</td><td class="r" style="font-size:11px;color:#888">'+{essential:'Essential',premium:'Premium',enterprise:'Enterprise'}[pkg]+'</td>'+
+    '<td class="r">€ '+fmt(r.annual)+'</td></tr>';
+  }).join('')+
+  '<tr class="total-row"><td><strong>Lizenz gesamt</strong></td><td></td><td class="r"><strong>€ '+fmt(totalLic)+'</strong> / Jahr</td></tr>'+
+  '</tbody></table></div>':'')+ 
+
+  // Implementation table
+  '<div class="st">Implementierungsleistung (einmalig) · Tagessatz €'+fmt(rate)+'</div>'+
+  '<table class="eff-table" id="eff-tbl"><thead><tr><th>Kategorie / Leistungsposition</th><th class="r" style="width:60px">PT</th><th class="r" style="width:100px">Betrag</th></tr></thead><tbody>';
+
+  var curCat='';
+  rows.forEach(function(r,i){
+    if(r.cat!==curCat){
+      html+='<tr class="section-row"><td colspan="3">'+r.cat+'</td></tr>';
+      curCat=r.cat;
+    }
+    var id='ep_'+i;
+    html+='<tr><td>'+r.label+(r.note?'<div class="eff-note">'+r.note+'</div>':'')+'</td>'+
+      '<td class="r"><input class="eff-input" id="'+id+'" type="number" value="'+r.pt+'" min="0" max="999" oninput="recalcEffort()"></td>'+
+      '<td class="r eff-eur" data-id="'+id+'">€ '+fmt(r.pt*rate)+'</td></tr>';
+  });
+
+  html+='<tr class="total-row"><td><strong>Implementierung (netto)</strong></td>'+
+    '<td class="r"><strong id="impl_total">'+implPT+'</strong> PT</td>'+
+    '<td class="r"><strong id="impl_eur">€ '+fmt(implPT*rate)+'</strong></td></tr>';
+  if(urgency>1)html+='<tr><td colspan="3" style="font-size:11px;color:#e05a3a;padding:.4rem .6rem">⚡ Urgency-Zuschlag +20% (Go-Live &lt; 3 Monate) bereits eingerechnet</td></tr>';
+  html+='<tr class="pm-row"><td>Projektmanagement (18%)</td><td class="r" id="pm_days">'+pmPT+' PT</td><td class="r" id="pm_eur">€ '+fmt(pmPT*rate)+'</td></tr>';
+  html+='<tr class="pm-row"><td>Go-Live & Hypercare (10%)</td><td class="r" id="hc_days">'+hyperPT+' PT</td><td class="r" id="hc_eur">€ '+fmt(hyperPT*rate)+'</td></tr>';
+  html+='<tr class="total-row"><td><strong>GESAMT Implementierung</strong></td><td class="r"><strong id="grand_total">'+grandPT+'</strong> PT</td><td class="r"><strong id="grand_eur">€ '+fmt(grandPT*rate)+'</strong></td></tr>';
+  html+='</tbody></table>';
+
+  html+='<div style="display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap">'+
+    '<button onclick="exportEffortExcel()" style="padding:9px 18px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">📥 Als Excel exportieren</button>'+
+    '<button onclick="exportEffortCopy()" style="padding:9px 18px;background:#f5f5f3;color:#555;border:1px solid #e0e0db;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">📋 In Zwischenablage kopieren</button>'+
+  '</div>'+
+  '<div class="eff-ass-note" style="margin-top:.75rem">⚠️ Erste indikative Schätzung auf Basis der Assessment-Angaben und bdg-Projektvorlagen (Recaro, KWS, Globogate). Tagessatz Listenpreis €1.650 · Standard-Rabatt 10%. PM: 18% · Hypercare: 10% der Implementierung. Alle Werte intern und nicht verbindlich – für ein belastbares Angebot ist ein Scoping-Workshop erforderlich.</div>';
+
+  html+='<div style="margin-top:1.25rem;display:flex;gap:10px"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
+
+  document.getElementById('effort-content').innerHTML=html;
+  document.getElementById('pf').style.width='100%';
+  document.getElementById('si').textContent='Aufwandsschätzung';
+}
+
+function setEffortPkg(pkg){
+  effortState.pkg=pkg;
+  renderEffortPage();
+}
+
+function recalcEffort(){
+  var rate=effortState.rate||1650;
+  var implPT=0;
+  document.querySelectorAll('.eff-input').forEach(function(inp){
+    var days=Math.max(0,+inp.value||0);
+    var eurEl=document.querySelector('.eff-eur[data-id="'+inp.id+'"]');
+    if(eurEl)eurEl.textContent='€ '+fmt(days*rate);
+    implPT+=days;
+  });
+  var pm=Math.round(implPT*0.18);
+  var hc=Math.round(implPT*0.10);
+  var grand=implPT+pm+hc;
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  set('impl_total',implPT);set('impl_eur','€ '+fmt(implPT*rate));
+  set('pm_days',pm+' PT');set('pm_eur','€ '+fmt(pm*rate));
+  set('hc_days',hc+' PT');set('hc_eur','€ '+fmt(hc*rate));
+  set('grand_total',grand);set('grand_eur','€ '+fmt(grand*rate));
+}
+
+function exportEffortExcel(){
+  var rate=effortState.rate||1650;
+  var rows=[['Kategorie','Leistungsposition','Anmerkung','PT','Tagessatz (€)','Betrag (€)']];
+  document.querySelectorAll('#eff-tbl tbody tr').forEach(function(tr){
+    if(tr.classList.contains('section-row')){
+      rows.push([tr.cells[0].textContent,'','','','','']);
+    }else if(tr.classList.contains('total-row')||tr.classList.contains('pm-row')){
+      var cells=tr.cells;
+      if(cells.length>=3)rows.push(['',cells[0].textContent.trim(),'',cells[1].textContent.replace(/\s*PT/,'').trim(),'',cells[2].textContent.trim()]);
+    }else{
+      var inp=tr.querySelector('.eff-input');
+      if(inp){
+        var label=tr.cells[0].childNodes[0].textContent.trim();
+        var note=tr.cells[0].querySelector('.eff-note');
+        var pt=+inp.value;
+        rows.push(['',label,note?note.textContent:'',pt,rate,pt*rate]);
+      }
     }
   });
-  if(state.otherInputTool)diItems.push({label:state.otherInputTool,days:5,note:'Anbindung noch zu klären'});
-  if(diItems.length===0)diItems.push({label:'Datenintegration (noch zu klären)',days:8,note:'Vorsysteme noch nicht definiert'});
-
-  // Build: pro Modul
-  var buildItems=[];
-  if(sf.indexOf('finance')>-1){
-    var finDays=Math.round(18*entMult);
-    buildItems.push({label:'bdgONE Finance Core (GuV, Bilanz, Cash Flow)',days:finDays,note:'inkl. Datenmodell, Dimensionen & Templates'});
-    if(state.scope.indexOf('investitionen')>-1)buildItems.push({label:'Submodul: CAPEX / Investitionsplanung',days:6,note:'inkl. AFA-Berechnung'});
-    if(state.scope.indexOf('profitability')>-1)buildItems.push({label:'Submodul: Allocation / COA',days:7,note:'Innerbetriebliche Leistungsverrechnung'});
-    if(state.budget.status!=='no')buildItems.push({label:'Jahresplanung & Budget-Workflow',days:4,note:state.budget.dir==='hybrid'?'Top-Down + Bottom-Up':state.budget.dir||'Planungsprozess'});
-    if(state.forecast.status!=='no'&&state.forecast.status!=='')buildItems.push({label:'Rolling Forecast'+( state.forecast.method==='driver'?' (treiber-basiert)':''),days:state.forecast.method==='driver'?8:5,note:({monthly:'monatlich',quarterly:'quartalsweise',adhoc:'ad-hoc'}[state.forecast.freq]||'')});
-    if(state.mfp.status!=='no'&&state.mfp.status!==''){
-      var mfpD=5;
-      if(state.mfp.scenarios==='wanted'||state.mfp.scenarios==='yes')mfpD+=3;
-      buildItems.push({label:'Mittelfristplanung'+(state.mfp.horizon?' ('+state.mfp.horizon+')':''),days:mfpD,note:state.mfp.link==='no'?'Verknüpfung zu Budget noch zu klären':'verknüpft mit Jahresplanung'});
+  // Add license section
+  rows.push(['','','','','','']);
+  rows.push(['LIZENZKOSTEN (jährlich)','','','','','']);
+  document.querySelectorAll('.eff-table:not(#eff-tbl) tbody tr').forEach(function(tr){
+    if(tr.classList.contains('total-row')){
+      rows.push(['',tr.cells[0].textContent.trim(),'','','',tr.cells[2].textContent.trim()]);
+    }else if(!tr.classList.contains('section-row')){
+      var cells=tr.cells;
+      if(cells.length>=3)rows.push(['',cells[0].textContent.trim(),'','','',cells[2].textContent.trim()]);
     }
-    if(state.scope.indexOf('konsolidierung')>-1)buildItems.push({label:'Konzernkonsolidierung',days:Math.round(12*entMult),note:ent+' Einheiten'});
-  }
-  if(sf.indexOf('people')>-1){
-    var peopleDays=Math.round(12*(state.people.planners>5?1.2:1.0));
-    buildItems.push({label:'bdgONE People Core (FTE, Personalkosten, Headcount)',days:peopleDays,note:'inkl. Kostenstellenplanung'});
-    if(state.scope.indexOf('recruiting')>-1)buildItems.push({label:'Extension: Recruiting-Planung',days:4,note:'Vakanzen & Backfill-Logik'});
-    if(state.scope.indexOf('capacity')>-1)buildItems.push({label:'Extension: Personaleinsatz / Schichtplanung',days:5,note:'Kapazitätsplanung je Campaign/Client'});
-  }
-  if(sf.indexOf('energy')>-1){
-    buildItems.push({label:'bdgONE Energy Core (Tarife, Mengen, Netzkosten)',days:16,note:'branchenspezifisches Datenmodell'});
-  }
-  if(sf.indexOf('cs')>-1){
-    buildItems.push({label:'CS|Control (Kapazitätsplanung, KPI-Dashboards)',days:12,note:'Cost-to-Serve je Client'});
-    buildItems.push({label:'CS|Control: Finance-Brücke / P&L',days:4,note:'Transfer in Finance-GuV'});
-  }
+  });
+  rows.push(['','','','','','']);
+  rows.push(['GESAMT JAHR 1 (Impl. + Lizenz)','','','','','']);
 
-  // Reporting
-  var repDays=Math.round(4+(+state.analysts||3)*1.5);
-  buildItems.push({label:'Reporting & Dashboards',days:repDays,note:(+state.analysts||3)+' Analysten · Standard-Templates'});
+  // Build CSV
+  var csv=rows.map(function(r){
+    return r.map(function(c){
+      var s=String(c).replace(/"/g,'""');
+      return (s.indexOf(',')>-1||s.indexOf('"')>-1||s.indexOf('\n')>-1)?'"'+s+'"':s;
+    }).join(';');
+  }).join('\n');
 
-  // Workflow & Auth
-  var authDays=2+wfAdd+Math.round(totalUsers/30);
-  buildItems.push({label:'Workflow & Freigabeprozesse',days:authDays,note:state.workflowComplexity==='high'?'komplexe Hierarchien':state.workflowComplexity==='medium'?'mehrere Abteilungen':'einfaches Setup'});
-  buildItems.push({label:'Berechtigungskonzept & User-Setup',days:Math.round(1+totalUsers/25),note:totalUsers+' User gesamt'});
-
-  // Training & Handover
-  var trainDays=Math.round(2+totalUsers/40);
-  var sumBuild=buildItems.reduce(function(a,b){return a+b.days;},0);
-  var sumDI=diItems.reduce(function(a,b){return a+b.days;},0);
-  var scoping=state.entities==='gt15'?4:state.workflowComplexity==='high'?4:3;
-  var kickoff=2;
-  var uat=Math.round((sumBuild+sumDI)*0.05);
-  var implTotal=Math.round((kickoff+scoping+sumDI+sumBuild+trainDays+uat)*urgency);
-  var pm=Math.round(implTotal*0.15);
-  var hypercare=Math.round(implTotal*0.10);
-  var grandTotal=implTotal+pm+hypercare;
-  var grandEur=grandTotal*RATE;
-
-  // Build HTML table
-  function row(label,days,note,cls){
-    var id='eff_'+Math.random().toString(36).substr(2,6);
-    return '<tr class="'+(cls||'')+'">'+
-      '<td>'+label+(note?'<div class="eff-note">'+note+'</div>':'')+'</td>'+
-      '<td class="r"><input class="eff-input" id="'+id+'" type="number" value="'+days+'" min="0" max="999" oninput="recalcEffort()"></td>'+
-      '<td class="r eff-eur" data-id="'+id+'">€ '+fmt(days*RATE)+'</td>'+
-    '</tr>';
-  }
-  function secRow(label){
-    return '<tr class="section-row"><td colspan="3">'+label+'</td></tr>';
-  }
-
-  var rows=
-    secRow('1. Projektinitialisierung')+
-    row('Kick-Off & Projektsetup',''+kickoff,'Projektdokumente, Tools, Kommunikation')+
-    secRow('2. Scoping & Konzeption')+
-    row('Workshops & Anforderungsaufnahme',''+scoping,'inkl. Dokumentation und Systemarchitektur')+
-    secRow('3. Datenintegration')+
-    diItems.map(function(i){return row(i.label,''+i.days,i.note);}).join('')+
-    secRow('4. Build – Module & Funktionen')+
-    buildItems.map(function(i){return row(i.label,''+i.days,i.note);}).join('')+
-    secRow('5. Training & Handover')+
-    row('Key-User Training & Dokumentation',''+trainDays,totalUsers+' User, '+sf.join('/')+' Scope')+
-    secRow('6. UAT & Abnahme')+
-    row('User Acceptance Testing',''+uat,'ca. 5% der Build-Leistung')+
-    '<tr class="total-row"><td><strong>Implementierung gesamt</strong></td><td class="r"><strong id="impl_total">'+implTotal+'</strong> PT</td><td class="r"><strong id="impl_eur">€ '+fmt(implTotal*RATE)+'</strong></td></tr>'+
-    (urgency>1?'<tr><td colspan="3" style="font-size:11px;color:#e05a3a;padding:.4rem .6rem">⚡ Urgency-Zuschlag +20% (Go-Live < 3 Monate)</td></tr>':'')+
-    '<tr class="pm-row"><td>Projektmanagement (15%)</td><td class="r" id="pm_days">'+pm+' PT</td><td class="r" id="pm_eur">€ '+fmt(pm*RATE)+'</td></tr>'+
-    '<tr class="pm-row"><td>Go-Live & Hypercare (10%)</td><td class="r" id="hc_days">'+hypercare+' PT</td><td class="r" id="hc_eur">€ '+fmt(hypercare*RATE)+'</td></tr>'+
-    '<tr class="total-row"><td><strong>GESAMT</strong></td><td class="r"><strong id="grand_total">'+grandTotal+'</strong> PT</td><td class="r"><strong id="grand_eur">€ '+fmt(grandEur)+'</strong></td></tr>';
-
-  return '<div class="eff-total-box"><div><div class="eff-total-label">Erste Aufwandsschätzung (indikativ)</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:.2rem">Tagessatz €'+fmt(RATE)+' · Alle Angaben manuell editierbar</div></div><div><div class="eff-total-val" id="main_total">'+grandTotal+' PT</div><div style="font-size:13px;color:rgba(255,255,255,.75);text-align:right">€ '+fmt(grandEur)+'</div></div></div>'+
-    '<table class="eff-table">'+
-    '<thead><tr><th>Leistungsposition</th><th class="r">PT</th><th class="r">Betrag (€'+fmt(RATE)+'/PT)</th></tr></thead>'+
-    '<tbody>'+rows+'</tbody></table>'+
-    '<div class="eff-ass-note">⚠️ Erste indikative Schätzung auf Basis der Assessment-Angaben – keine verbindliche Aufwandskalkulation. Für ein verbindliches Angebot ist ein Scoping-Workshop mit Pre-Sales erforderlich. Tagessatz: €'+fmt(RATE)+' (blended rate). Komplexitätsfaktoren (Anzahl Einheiten: ×'+entMult+') wurden berücksichtigt.</div>';
+  // Add BOM for Excel German
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='bdg_Aufwandsschaetzung_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
+
+function exportEffortCopy(){
+  var rate=effortState.rate||1650;
+  var lines=['bdg Aufwandsschätzung – '+new Date().toLocaleDateString('de-DE'),''];
+  lines.push('Paket: '+{essential:'Essential',premium:'Premium',enterprise:'Enterprise'}[effortState.pkg]);
+  lines.push('Tagessatz: €'+rate);
+  lines.push('');
+  document.querySelectorAll('#eff-tbl tbody tr').forEach(function(tr){
+    if(tr.classList.contains('section-row')){lines.push('\n'+tr.cells[0].textContent);}
+    else{
+      var inp=tr.querySelector('.eff-input');
+      if(inp){var label=tr.cells[0].childNodes[0].textContent.trim();lines.push('  '+label+': '+inp.value+' PT = €'+fmt(+inp.value*rate));}
+      else if(tr.cells.length>=3){lines.push('  '+tr.cells[0].textContent.trim()+': '+tr.cells[1].textContent.trim()+' = '+tr.cells[2].textContent.trim());}
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function(){
+    var btn=document.querySelector('[onclick="exportEffortCopy()"]');
+    if(btn){btn.textContent='✓ Kopiert!';setTimeout(function(){btn.textContent='📋 In Zwischenablage kopieren';},2000);}
+  });
+}
+
+function buildEffortTable(){return '';} // legacy stub
 
 function toggleExpand(head){
   var body=document.getElementById('exp-body');
