@@ -157,6 +157,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sub-name{font-size:12px;font-weight:500;color:#1a1a18}
 .sub-why{font-size:12px;color:#888}
 
+/* Result Tabs */
+.res-tabs{display:flex;gap:6px;margin-bottom:1.25rem;border-bottom:1px solid #e8e8e5;padding-bottom:0}
+.res-tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;font-family:inherit;color:#999;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.res-tab:hover{color:#1a1a18}
+.res-tab.active{color:#0F6E56;border-bottom-color:#1D9E75}
+.res-panel{display:none}.res-panel.active{display:block}
+
+/* Protocol */
+.proto-section{margin-bottom:1rem}
+.proto-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#bbb;margin-bottom:.5rem}
+.proto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.proto-item{background:#f8f8f6;border-radius:8px;padding:.6rem .8rem;border:1px solid #e8e8e5}
+.proto-label{font-size:11px;color:#aaa;margin-bottom:.15rem}
+.proto-val{font-size:12px;font-weight:500;color:#1a1a18}
+.proto-val.empty{color:#ccc;font-weight:400;font-style:italic}
+
+/* Effort Estimation Table */
+.eff-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.eff-title{font-size:15px;font-weight:500;color:#1a1a18}
+.eff-rate{font-size:12px;color:#888;background:#f5f5f3;padding:4px 10px;border-radius:999px}
+.eff-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem}
+.eff-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#aaa;padding:.5rem .6rem;border-bottom:1px solid #e8e8e5}
+.eff-table th.r{text-align:right}
+.eff-table td{padding:.5rem .6rem;border-bottom:1px solid #f5f5f3;color:#444;vertical-align:top}
+.eff-table td.r{text-align:right}
+.eff-table tr.section-row td{background:#f8f8f6;font-weight:600;color:#1a1a18;font-size:12px}
+.eff-table tr.total-row td{background:#e6f4f0;font-weight:700;color:#0F6E56;border-top:2px solid #9ED8C8}
+.eff-table tr.total-row td.r{color:#0F6E56}
+.eff-table tr.pm-row td{background:#fff8ec;color:#a07000}
+.eff-days{font-weight:500;color:#1a1a18}
+.eff-input{width:48px;border:1px solid #e0e0db;border-radius:6px;padding:3px 6px;font-size:12px;text-align:right;font-family:inherit;background:#fff;color:#1a1a18}
+.eff-input:focus{outline:none;border-color:#9ED8C8}
+.eff-note{font-size:11px;color:#aaa;margin-top:.2rem;line-height:1.4}
+.eff-total-box{background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:12px;padding:1.2rem 1.4rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.eff-total-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.8)}
+.eff-total-val{font-size:28px;font-weight:600;color:#fff}
+.eff-print-btn{padding:8px 16px;border-radius:8px;border:1px solid #e0e0db;background:#f5f5f3;font-size:12px;cursor:pointer;font-family:inherit;color:#555;margin-right:8px}
+.eff-print-btn:hover{background:#eee}
+.eff-ass-note{font-size:11px;color:#bbb;font-style:italic;line-height:1.5;margin-top:.75rem}
+
 /* Value */
 .hero-val{background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:14px;padding:1.5rem;margin-bottom:.75rem;text-align:center}
 .hero-val .label{font-size:11px;font-weight:600;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
@@ -524,6 +564,70 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
 
+      <div class="sec-label" style="margin-top:1.5rem"><span class="sl-badge" style="background:#555">Timing & Priorität</span></div>
+
+      <div class="qg">
+        <div class="ql">Wann soll die Lösung live gehen?</div>
+        <div class="chips">
+          <button class="chip" onclick="pick(this,'goLive','lt3m')">Sofort / &lt; 3 Monate</button>
+          <button class="chip" onclick="pick(this,'goLive','3-6m')">3 – 6 Monate</button>
+          <button class="chip" onclick="pick(this,'goLive','6-12m')">6 – 12 Monate</button>
+          <button class="chip" onclick="pick(this,'goLive','gt12m')">Über 12 Monate</button>
+          <button class="chip" onclick="pick(this,'goLive','open')">Noch offen</button>
+        </div>
+      </div>
+
+      <div class="qg">
+        <div class="ql">Einführungsstrategie</div>
+        <div class="chips">
+          <button class="chip" onclick="pick(this,'rollout','bigbang')">Alles auf einmal (Big Bang)</button>
+          <button class="chip" onclick="pick(this,'rollout','phased')">Phasenweise – erst das Wichtigste</button>
+          <button class="chip" onclick="pick(this,'rollout','pilot')">Erst Pilot, dann ausrollen</button>
+          <button class="chip" onclick="pick(this,'rollout','open')">Noch offen</button>
+        </div>
+      </div>
+
+      <div class="qg">
+        <div class="ql">Was drückt am meisten – was muss zuerst gelöst werden?</div>
+        <div class="chips">
+          <button class="chip" onclick="pick(this,'urgentFirst','budget')">📋 Budget / Jahresplanung</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','forecast')">🔄 Forecast / Hochrechnung</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','people')">👥 Personalkosten-Planung</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','reporting')">📊 Reporting & Dashboards</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','consolidation')">🏢 Konsolidierung</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','data')">🔌 Datenintegration / Vorsysteme</button>
+          <button class="chip" onclick="pick(this,'urgentFirst','cs')">📞 Customer Service Steuerung</button>
+        </div>
+      </div>
+
+      <div class="qg">
+        <div class="ql">Was ist bei der Entscheidung am wichtigsten?</div>
+        <div class="qs">Reihenfolge gibt Hinweis auf Argumentation – bitte das wichtigste zuerst</div>
+        <div class="chips" id="prio-chips">
+          <button class="chip" data-prio="price" onclick="togglePrio(this)">💰 Preis / TCO</button>
+          <button class="chip" data-prio="speed" onclick="togglePrio(this)">⚡ Implementierungsgeschwindigkeit</button>
+          <button class="chip" data-prio="functionality" onclick="togglePrio(this)">🔧 Funktionsumfang</button>
+          <button class="chip" data-prio="usability" onclick="togglePrio(this)">🖥️ Usability / UX</button>
+          <button class="chip" data-prio="performance" onclick="togglePrio(this)">🚀 Performance & Skalierbarkeit</button>
+          <button class="chip" data-prio="support" onclick="togglePrio(this)">🤝 Support & Partnerschaft</button>
+          <button class="chip" data-prio="references" onclick="togglePrio(this)">⭐ Referenzen / Branchenerfahrung</button>
+          <button class="chip" data-prio="integration" onclick="togglePrio(this)">🔗 Integration in bestehende Systemlandschaft</button>
+        </div>
+        <div id="prio-order" style="display:none;margin-top:.5rem;font-size:11px;color:#0F6E56;background:#e6f4f0;padding:.4rem .7rem;border-radius:6px"></div>
+      </div>
+
+      <div class="qg">
+        <div class="ql">Gibt es ein Budget-Rahmen?</div>
+        <div class="chips">
+          <button class="chip" onclick="pick(this,'budget_range','lt50')">unter € 50.000</button>
+          <button class="chip" onclick="pick(this,'budget_range','50-150')">€ 50.000 – 150.000</button>
+          <button class="chip" onclick="pick(this,'budget_range','150-300')">€ 150.000 – 300.000</button>
+          <button class="chip" onclick="pick(this,'budget_range','gt300')">über € 300.000</button>
+          <button class="chip" onclick="pick(this,'budget_range','none')">Kein Budget definiert</button>
+          <button class="chip" onclick="pick(this,'budget_range','open')">Noch offen / vertraulich</button>
+        </div>
+      </div>
+
       <div class="nav"><button class="btn" onclick="back()">← Zurück</button><button class="btn btnp" onclick="next()">Weiter →</button></div>
     </div>
 
@@ -594,6 +698,7 @@ var state={
   peoplePain:'',csPains:[],csControl:'',
   scope:[],planningFocus:'',pains:[],
   sourceSystems:[],otherInputTool:'',biReplacement:'',
+  goLive:'',rollout:'',urgentFirst:'',priorities:[],budget_range:'',
   excelAffinity:'',workflowComplexity:'',deployment:'',itInvolvement:'',
   admins:1,planners:5,analysts:3,viewers:20
 };
@@ -819,6 +924,25 @@ function pick(el,key,val,multi){
   if(key==='industry'){updateIndustryLabels();updateScopeSections();}
 }
 
+function togglePrio(el){
+  var key=el.dataset.prio;
+  var i=state.priorities.indexOf(key);
+  if(i>-1){
+    state.priorities.splice(i,1);
+    el.classList.remove('on');
+  }else{
+    state.priorities.push(key);
+    el.classList.add('on');
+  }
+  // Show ranking order
+  var labels={'price':'Preis/TCO','speed':'Geschwindigkeit','functionality':'Funktionsumfang','usability':'Usability','performance':'Performance','support':'Support','references':'Referenzen','integration':'Integration'};
+  var od=document.getElementById('prio-order');
+  if(state.priorities.length>0){
+    od.style.display='block';
+    od.textContent='Priorität: '+state.priorities.map(function(p,i){return (i+1)+'. '+labels[p];}).join(' · ');
+  }else{od.style.display='none';}
+}
+
 function toggleOtherInput(el){
   var active=el.classList.contains('on');
   if(active){el.classList.remove('on');var i=state.sourceSystems.indexOf('other_input');if(i>-1)state.sourceSystems.splice(i,1);state.otherInputTool='';document.getElementById('other-input-wrap').style.display='none';document.getElementById('other-input-field').value='';}
@@ -969,7 +1093,7 @@ function buildPrompt(r){
   if(sf.indexOf('cs')>-1)pts+='CS|Control: '+state.cs.agents+' Agents, Pains: '+state.csPains.join(',')+'\n';
   if(sf.indexOf('energy')>-1)pts+='Energy scope: '+state.scope.filter(function(s){return['energie','mengen','netz','cx'].indexOf(s)>-1;}).join(',')+'\n';
 
-  return 'Du bist Senior Sales Analyst bei bdg. WICHTIG: Antworte AUSSCHLIESSLICH mit einem einzigen validen JSON-Objekt. Keine Erklärungen, kein Markdown, keine Zeilenumbrüche innerhalb von String-Werten. Alle Strings müssen auf einer Zeile bleiben.\n\nBranche: '+state.industry+' | €'+r.rate+'/h | MA: '+state.employees+' | Einheiten: '+state.entities+' | Tool: '+state.currentTool+'\nScope: '+sf.join(', ')+'\n'+pts+'\nDetails: '+state.scope.join(', ')+' | Fokus: '+state.planningFocus+' | Pains: '+state.pains.join(', ')+'\nVorsysteme: '+state.sourceSystems.join(', ')+(state.otherInputTool?' +'+state.otherInputTool:'')+'\nBI: '+state.biReplacement+' | Excel: '+state.excelAffinity+' | Workflow: '+state.workflowComplexity+' | Deploy: '+state.deployment+'\nUser: '+state.admins+' Admins, '+state.planners+' Planer, '+state.analysts+' Analysten, '+state.viewers+' Viewer\n\nPLATTFORM: Jedox=FP&A/Excel/Cloud/Mittelstand/People | BOARD=BI+Planning/Ops/viele Einheiten/OnPrem\n\nMODULE:\nbdgONE Finance CORE: GuV/Profitcenter, Bilanz, indirekter Cashflow. SUBMODULE: OPEX-Planung, CAPEX/Investitionen (inkl. AFA), Darlehensplanung, Allocation/COA, Rueckstellungsplanung\nbdgONE People CORE: Personalkosten & FTE, Headcount & Vacancy, Kostenstellenplanung. EXTENSIONS: Recruiting, Personaleinsatz/Schichtplanung, Source-System-Integration\nbdgONE Energy CORE: Tarif- & Preisplanung, Mengen/Lastprofile, Netzkosten. EXTENSION: CS|Control\nCS|Control CORE: Kapazitaetsplanung, KPI-Dashboards, Cost-to-Serve. EXTENSION: Finance-Bruecke\nKonsolidierung: Konzernkonsolidierung. Dashboards: Self-Service BI\nReferenzen: Burgenland Energie, Stadtwerke Guetersloh, 50Hertz, e-Regio, FOND OF, Weischer.JvB, KROMI Logistik, 1&1\n\n{"platform":"Jedox|BOARD|Beide geeignet","platform_confidence":0-100,"platform_reasoning":"2-3 Saetze ohne Sonderzeichen","recommended_areas":[{"area":"Name","priority":"hoch|mittel","core_modules":["Modul"],"submodules":[{"name":"Name","why":"1 Satz","priority":"empfohlen|optional"}],"area_note":"1 Satz"}],"top_value_driver":"1 Satz","jedox_pros":["Punkt 1","Punkt 2","Punkt 3"],"jedox_cons":["Punkt 1","Punkt 2"],"board_pros":["Punkt 1","Punkt 2","Punkt 3"],"board_cons":["Punkt 1","Punkt 2"],"planning_type_coverage":[{"type":"Budget / Jahresplanung","icon":"📋","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Rolling Forecast","icon":"🔄","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Mittelfristplanung","icon":"📈","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"People-Planung","icon":"👥","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Energy-Planung","icon":"⚡","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"CS|Control","icon":"📞","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"}],"best_references":["max 3"],"key_risk":"1 Satz","next_step":"1-2 Saetze"}';
+  return 'Du bist Senior Sales Analyst bei bdg. WICHTIG: Antworte AUSSCHLIESSLICH mit einem einzigen validen JSON-Objekt. Keine Erklärungen, kein Markdown, keine Zeilenumbrüche innerhalb von String-Werten. Alle Strings müssen auf einer Zeile bleiben.\n\nBranche: '+state.industry+' | €'+r.rate+'/h | MA: '+state.employees+' | Einheiten: '+state.entities+' | Tool: '+state.currentTool+'\nScope: '+sf.join(', ')+'\n'+pts+'\nDetails: '+state.scope.join(', ')+' | Fokus: '+state.planningFocus+' | Pains: '+state.pains.join(', ')+'\nVorsysteme: '+state.sourceSystems.join(', ')+(state.otherInputTool?' +'+state.otherInputTool:'')+'\nBI: '+state.biReplacement+' | Excel: '+state.excelAffinity+' | Workflow: '+state.workflowComplexity+' | Deploy: '+state.deployment+'\nUser: '+state.admins+' Admins, '+state.planners+' Planer, '+state.analysts+' Analysten, '+state.viewers+' Viewer\nTIMING: Go-Live='+state.goLive+' | Rollout='+state.rollout+' | DringsndstesProblem='+state.urgentFirst+'\nENTSCHEIDUNGSKRITERIEN (Reihenfolge=Prioritaet): '+state.priorities.join(' > ')+'\nBUDGET: '+state.budget_range+'\n\nPLATTFORM: Jedox=FP&A/Excel/Cloud/Mittelstand/People/schnell | BOARD=BI+Planning/Ops/viele Einheiten/OnPrem/Funktionsumfang\nWenn Geschwindigkeit Prio1 und GoLive<6M: Jedox-Vorteil. Wenn Preis wichtig und Budget<150k: Jedox bevorzugen. Wenn Funktionsumfang Prio1: BOARD genauer pruefen.\n\nMODULE:\nbdgONE Finance CORE: GuV/Profitcenter, Bilanz, indirekter Cashflow. SUBMODULE: OPEX-Planung, CAPEX/Investitionen (inkl. AFA), Darlehensplanung, Allocation/COA, Rueckstellungsplanung\nbdgONE People CORE: Personalkosten & FTE, Headcount & Vacancy, Kostenstellenplanung. EXTENSIONS: Recruiting, Personaleinsatz/Schichtplanung, Source-System-Integration\nbdgONE Energy CORE: Tarif- & Preisplanung, Mengen/Lastprofile, Netzkosten. EXTENSION: CS|Control\nCS|Control CORE: Kapazitaetsplanung, KPI-Dashboards, Cost-to-Serve. EXTENSION: Finance-Bruecke\nKonsolidierung: Konzernkonsolidierung. Dashboards: Self-Service BI\nReferenzen: Burgenland Energie, Stadtwerke Guetersloh, 50Hertz, e-Regio, FOND OF, Weischer.JvB, KROMI Logistik, 1&1\n\n{"platform":"Jedox|BOARD|Beide geeignet","platform_confidence":0-100,"platform_reasoning":"2-3 Saetze ohne Sonderzeichen","recommended_areas":[{"area":"Name","priority":"hoch|mittel","core_modules":["Modul"],"submodules":[{"name":"Name","why":"1 Satz","priority":"empfohlen|optional"}],"area_note":"1 Satz"}],"top_value_driver":"1 Satz","phasing_recommendation":"1-2 Saetze zur empfohlenen Einfuehrungsreihenfolge basierend auf Urgency und Timing","jedox_pros":["Punkt 1","Punkt 2","Punkt 3"],"jedox_cons":["Punkt 1","Punkt 2"],"board_pros":["Punkt 1","Punkt 2","Punkt 3"],"board_cons":["Punkt 1","Punkt 2"],"planning_type_coverage":[{"type":"Budget / Jahresplanung","icon":"📋","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Rolling Forecast","icon":"🔄","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Mittelfristplanung","icon":"📈","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"People-Planung","icon":"👥","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Energy-Planung","icon":"⚡","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"CS|Control","icon":"📞","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"}],"best_references":["max 3"],"key_risk":"1 Satz","next_step":"1-2 Saetze"}';
 }
 
 function fallback(){
@@ -1080,9 +1204,23 @@ function renderResults(rec){
   var missingScopes=allScopes.filter(function(s){return state.scopeFocus.indexOf(s)===-1;});
   var expandBtns=missingScopes.map(function(s){return '<button class="esb" onclick="activateExpandScope(\''+s+'\',this)">+ '+scopeNames[s]+' hinzufügen</button>';}).join('');
 
+  var goLiveLabels={'lt3m':'< 3 Monate','3-6m':'3–6 Monate','6-12m':'6–12 Monate','gt12m':'> 12 Monate','open':'offen'};
+  var rolloutLabels={'bigbang':'Big Bang','phased':'Phasenweise','pilot':'Pilot-Ansatz','open':'offen'};
+  var prioLabels={'price':'Preis/TCO','speed':'Geschwindigkeit','functionality':'Funktionsumfang','usability':'Usability','performance':'Performance','support':'Support','references':'Referenzen','integration':'Integration'};
+  var timingHTML=state.goLive?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem">'+
+    (state.goLive?'<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:4px 11px;font-size:12px;color:#555">🕐 Go-Live: '+(goLiveLabels[state.goLive]||state.goLive)+'</span>':'')+
+    (state.rollout?'<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:4px 11px;font-size:12px;color:#555">📋 '+(rolloutLabels[state.rollout]||state.rollout)+'</span>':'')+
+    (state.budget_range&&state.budget_range!=='open'?'<span style="background:#fff8ec;border:1px solid #ffd980;border-radius:999px;padding:4px 11px;font-size:12px;color:#a07000">💰 Budget: '+({'lt50':'< €50k','50-150':'€50–150k','150-300':'€150–300k','gt300':'> €300k','none':'kein Budget def.'}[state.budget_range]||state.budget_range)+'</span>':'')+
+    (state.urgentFirst?'<span style="background:#fff0ee;border:1px solid #ffb8b0;border-radius:999px;padding:4px 11px;font-size:12px;color:#b03020">🔥 Dringend: '+state.urgentFirst+'</span>':'')+
+  '</div>':'';
+  var prioHTML=state.priorities.length>0?'<div style="font-size:12px;color:#555;margin-bottom:1rem"><span style="font-weight:500">Entscheidungskriterien: </span>'+state.priorities.map(function(p,i){return '<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:3px 9px;font-size:11px;margin-right:4px">'+(i+1)+'. '+(prioLabels[p]||p)+'</span>';}).join('')+'</div>':'';
+
   document.getElementById('results').innerHTML=
     '<div class="scope-pills">'+pillsHTML+'</div>'+
+    timingHTML+prioHTML+
     '<div class="rp '+pc+'"><div class="rl '+pc+'">Empfohlene Plattform</div><div class="rn">'+rec.platform+'</div><div class="rr">'+rec.platform_reasoning+'</div><div class="cb"><div class="cbf" style="width:'+conf+'%"></div></div><div class="ct">Passgenauigkeit: '+conf+'%</div></div>'+
+
+    (rec.phasing_recommendation?'<div class="st">Empfohlene Einführungsreihenfolge</div><div class="nn">'+rec.phasing_recommendation+'</div>':'')+
 
     (ptcHTML?'<div class="st">Abdeckung pro Planungsbereich</div><div class="pt-coverage">'+ptcHTML+'</div>':'')+
 
