@@ -1251,7 +1251,7 @@ function renderResults(rec){
     '</div>'+
 
     '<div class="st">User-Struktur · '+totalU+' User gesamt</div>'+
-    '<div class="vg"><div class="vc"><div class="vl">Admins</div><div class="vn">'+state.admins+'</div></div><div class="vc"><div class="vl">Planer</div><div class="vn">'+state.planners+'</div></div><div class="vc"><div class="vl">Analysten</div class="vc"><div class="vl">Analysten</div><div class="vn">'+state.analysts+'</div></div><div class="vc"><div class="vl">Viewer</div><div class="vn">'+state.viewers+'</div></div></div>'+
+    '<div class="vg"><div class="vc"><div class="vl">Admins</div><div class="vn">'+state.admins+'</div></div><div class="vc"><div class="vl">Planer</div><div class="vn">'+state.planners+'</div></div><div class="vc"><div class="vl">Analysten</div><div class="vn">'+state.analysts+'</div></div><div class="vc"><div class="vl">Viewer</div><div class="vn">'+state.viewers+'</div></div></div>'+
 
     '<div class="st">Passende Referenzkunden</div><div class="rc">'+refs+'</div>'+
     '<div class="st">Wichtigste offene Frage</div><div class="nn">'+(rec.key_risk||'–')+'</div>'+
@@ -1260,8 +1260,131 @@ function renderResults(rec){
     (missingScopes.length>0?
     '<div class="expand-panel"><div class="expand-head" onclick="toggleExpand(this)"><div class="expand-title">🔍 Scope erweitern – weiteren Bereich schnell einschätzen</div><div class="expand-arrow" id="exp-arrow">▼</div></div><div class="expand-body" id="exp-body"><div style="font-size:12px;color:#888;margin-bottom:.75rem">Welchen Bereich möchtest du noch dazunehmen?</div><div class="expand-scope-btns">'+expandBtns+'</div><div id="mini-forms"></div></div></div>':'')+
 
-    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Audit-Einsparung: 4 Tage schnellerer Close. IT-Konsolidierung: Schätzung abgelöster Tool-Lizenzen. Alle Werte konservativ – dienen als Gesprächsgrundlage.</div>'+
+    '<hr style="border:none;border-top:1px solid #f0f0ee;margin:1.5rem 0">'+
+    '<div class="st">Erste Aufwandsschätzung</div>'+
+    buildEffortTable(rec)+
+
+    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Aufwandsschätzung basiert auf bdg-Projektvorlagen – alle Werte indikativ und intern, kein verbindliches Angebot.</div>'+
     '<div style="margin-top:1.25rem"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
+}
+
+function buildEffortTable(rec){
+  var RATE=1400; // bdg Tagessatz blended rate laut KWS-Vorlage
+  var ss=state.sourceSystems;
+  var sf=state.scopeFocus;
+  var ent=state.entities;
+  var entMult=ent==='gt15'?1.4:ent==='6-15'?1.2:ent==='2-5'?1.05:1.0;
+  var wfAdd=state.workflowComplexity==='high'?2:state.workflowComplexity==='medium'?1:0;
+  var totalUsers=+state.admins+(+state.planners)+(+state.analysts)+(+state.viewers);
+  var urgency=state.goLive==='lt3m'?1.2:1.0; // Urgency buffer
+
+  // Datenintegration: pro Vorsystem
+  var diMap={'sap_s4':12,'sap_ecc':14,'dynamics':8,'datev':5,'navision':6,'sage':4,
+             'workday':7,'sap_hcm':8,'personio':4,'other_hr':5,
+             'power_bi':3,'tableau':3,'excel_csv':2,'other_erp':7,'crm':4,'other_input':3};
+  var diItems=[];
+  ss.forEach(function(s){
+    if(diMap[s]){
+      var label={'sap_s4':'SAP S/4HANA','sap_ecc':'SAP ECC/R3','dynamics':'Microsoft Dynamics',
+        'datev':'DATEV','navision':'Navision/Business Central','sage':'Sage','workday':'Workday',
+        'sap_hcm':'SAP HCM/SuccessFactors','personio':'Personio','other_hr':'Sonstiges HR-System',
+        'power_bi':'Power BI','tableau':'Tableau','excel_csv':'Excel/CSV-Dateien',
+        'other_erp':'Sonstiges ERP','crm':'CRM','other_input':'Sonstiges mit Eingabe'}[s]||s;
+      diItems.push({label:label,days:diMap[s],note:'Master- & Faktdaten'});
+    }
+  });
+  if(state.otherInputTool)diItems.push({label:state.otherInputTool,days:5,note:'Anbindung noch zu klären'});
+  if(diItems.length===0)diItems.push({label:'Datenintegration (noch zu klären)',days:8,note:'Vorsysteme noch nicht definiert'});
+
+  // Build: pro Modul
+  var buildItems=[];
+  if(sf.indexOf('finance')>-1){
+    var finDays=Math.round(18*entMult);
+    buildItems.push({label:'bdgONE Finance Core (GuV, Bilanz, Cash Flow)',days:finDays,note:'inkl. Datenmodell, Dimensionen & Templates'});
+    if(state.scope.indexOf('investitionen')>-1)buildItems.push({label:'Submodul: CAPEX / Investitionsplanung',days:6,note:'inkl. AFA-Berechnung'});
+    if(state.scope.indexOf('profitability')>-1)buildItems.push({label:'Submodul: Allocation / COA',days:7,note:'Innerbetriebliche Leistungsverrechnung'});
+    if(state.budget.status!=='no')buildItems.push({label:'Jahresplanung & Budget-Workflow',days:4,note:state.budget.dir==='hybrid'?'Top-Down + Bottom-Up':state.budget.dir||'Planungsprozess'});
+    if(state.forecast.status!=='no'&&state.forecast.status!=='')buildItems.push({label:'Rolling Forecast'+( state.forecast.method==='driver'?' (treiber-basiert)':''),days:state.forecast.method==='driver'?8:5,note:({monthly:'monatlich',quarterly:'quartalsweise',adhoc:'ad-hoc'}[state.forecast.freq]||'')});
+    if(state.mfp.status!=='no'&&state.mfp.status!==''){
+      var mfpD=5;
+      if(state.mfp.scenarios==='wanted'||state.mfp.scenarios==='yes')mfpD+=3;
+      buildItems.push({label:'Mittelfristplanung'+(state.mfp.horizon?' ('+state.mfp.horizon+')':''),days:mfpD,note:state.mfp.link==='no'?'Verknüpfung zu Budget noch zu klären':'verknüpft mit Jahresplanung'});
+    }
+    if(state.scope.indexOf('konsolidierung')>-1)buildItems.push({label:'Konzernkonsolidierung',days:Math.round(12*entMult),note:ent+' Einheiten'});
+  }
+  if(sf.indexOf('people')>-1){
+    var peopleDays=Math.round(12*(state.people.planners>5?1.2:1.0));
+    buildItems.push({label:'bdgONE People Core (FTE, Personalkosten, Headcount)',days:peopleDays,note:'inkl. Kostenstellenplanung'});
+    if(state.scope.indexOf('recruiting')>-1)buildItems.push({label:'Extension: Recruiting-Planung',days:4,note:'Vakanzen & Backfill-Logik'});
+    if(state.scope.indexOf('capacity')>-1)buildItems.push({label:'Extension: Personaleinsatz / Schichtplanung',days:5,note:'Kapazitätsplanung je Campaign/Client'});
+  }
+  if(sf.indexOf('energy')>-1){
+    buildItems.push({label:'bdgONE Energy Core (Tarife, Mengen, Netzkosten)',days:16,note:'branchenspezifisches Datenmodell'});
+  }
+  if(sf.indexOf('cs')>-1){
+    buildItems.push({label:'CS|Control (Kapazitätsplanung, KPI-Dashboards)',days:12,note:'Cost-to-Serve je Client'});
+    buildItems.push({label:'CS|Control: Finance-Brücke / P&L',days:4,note:'Transfer in Finance-GuV'});
+  }
+
+  // Reporting
+  var repDays=Math.round(4+(+state.analysts||3)*1.5);
+  buildItems.push({label:'Reporting & Dashboards',days:repDays,note:(+state.analysts||3)+' Analysten · Standard-Templates'});
+
+  // Workflow & Auth
+  var authDays=2+wfAdd+Math.round(totalUsers/30);
+  buildItems.push({label:'Workflow & Freigabeprozesse',days:authDays,note:state.workflowComplexity==='high'?'komplexe Hierarchien':state.workflowComplexity==='medium'?'mehrere Abteilungen':'einfaches Setup'});
+  buildItems.push({label:'Berechtigungskonzept & User-Setup',days:Math.round(1+totalUsers/25),note:totalUsers+' User gesamt'});
+
+  // Training & Handover
+  var trainDays=Math.round(2+totalUsers/40);
+  var sumBuild=buildItems.reduce(function(a,b){return a+b.days;},0);
+  var sumDI=diItems.reduce(function(a,b){return a+b.days;},0);
+  var scoping=state.entities==='gt15'?4:state.workflowComplexity==='high'?4:3;
+  var kickoff=2;
+  var uat=Math.round((sumBuild+sumDI)*0.05);
+  var implTotal=Math.round((kickoff+scoping+sumDI+sumBuild+trainDays+uat)*urgency);
+  var pm=Math.round(implTotal*0.15);
+  var hypercare=Math.round(implTotal*0.10);
+  var grandTotal=implTotal+pm+hypercare;
+  var grandEur=grandTotal*RATE;
+
+  // Build HTML table
+  function row(label,days,note,cls){
+    var id='eff_'+Math.random().toString(36).substr(2,6);
+    return '<tr class="'+(cls||'')+'">'+
+      '<td>'+label+(note?'<div class="eff-note">'+note+'</div>':'')+'</td>'+
+      '<td class="r"><input class="eff-input" id="'+id+'" type="number" value="'+days+'" min="0" max="999" oninput="recalcEffort()"></td>'+
+      '<td class="r eff-eur" data-id="'+id+'">€ '+fmt(days*RATE)+'</td>'+
+    '</tr>';
+  }
+  function secRow(label){
+    return '<tr class="section-row"><td colspan="3">'+label+'</td></tr>';
+  }
+
+  var rows=
+    secRow('1. Projektinitialisierung')+
+    row('Kick-Off & Projektsetup',''+kickoff,'Projektdokumente, Tools, Kommunikation')+
+    secRow('2. Scoping & Konzeption')+
+    row('Workshops & Anforderungsaufnahme',''+scoping,'inkl. Dokumentation und Systemarchitektur')+
+    secRow('3. Datenintegration')+
+    diItems.map(function(i){return row(i.label,''+i.days,i.note);}).join('')+
+    secRow('4. Build – Module & Funktionen')+
+    buildItems.map(function(i){return row(i.label,''+i.days,i.note);}).join('')+
+    secRow('5. Training & Handover')+
+    row('Key-User Training & Dokumentation',''+trainDays,totalUsers+' User, '+sf.join('/')+' Scope')+
+    secRow('6. UAT & Abnahme')+
+    row('User Acceptance Testing',''+uat,'ca. 5% der Build-Leistung')+
+    '<tr class="total-row"><td><strong>Implementierung gesamt</strong></td><td class="r"><strong id="impl_total">'+implTotal+'</strong> PT</td><td class="r"><strong id="impl_eur">€ '+fmt(implTotal*RATE)+'</strong></td></tr>'+
+    (urgency>1?'<tr><td colspan="3" style="font-size:11px;color:#e05a3a;padding:.4rem .6rem">⚡ Urgency-Zuschlag +20% (Go-Live < 3 Monate)</td></tr>':'')+
+    '<tr class="pm-row"><td>Projektmanagement (15%)</td><td class="r" id="pm_days">'+pm+' PT</td><td class="r" id="pm_eur">€ '+fmt(pm*RATE)+'</td></tr>'+
+    '<tr class="pm-row"><td>Go-Live & Hypercare (10%)</td><td class="r" id="hc_days">'+hypercare+' PT</td><td class="r" id="hc_eur">€ '+fmt(hypercare*RATE)+'</td></tr>'+
+    '<tr class="total-row"><td><strong>GESAMT</strong></td><td class="r"><strong id="grand_total">'+grandTotal+'</strong> PT</td><td class="r"><strong id="grand_eur">€ '+fmt(grandEur)+'</strong></td></tr>';
+
+  return '<div class="eff-total-box"><div><div class="eff-total-label">Erste Aufwandsschätzung (indikativ)</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:.2rem">Tagessatz €'+fmt(RATE)+' · Alle Angaben manuell editierbar</div></div><div><div class="eff-total-val" id="main_total">'+grandTotal+' PT</div><div style="font-size:13px;color:rgba(255,255,255,.75);text-align:right">€ '+fmt(grandEur)+'</div></div></div>'+
+    '<table class="eff-table">'+
+    '<thead><tr><th>Leistungsposition</th><th class="r">PT</th><th class="r">Betrag (€'+fmt(RATE)+'/PT)</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="eff-ass-note">⚠️ Erste indikative Schätzung auf Basis der Assessment-Angaben – keine verbindliche Aufwandskalkulation. Für ein verbindliches Angebot ist ein Scoping-Workshop mit Pre-Sales erforderlich. Tagessatz: €'+fmt(RATE)+' (blended rate). Komplexitätsfaktoren (Anzahl Einheiten: ×'+entMult+') wurden berücksichtigt.</div>';
 }
 
 function toggleExpand(head){
@@ -1285,6 +1408,31 @@ function activateExpandScope(scope,btn){
     state.scopeFocus.push(scope);
     mf.innerHTML=(mf.innerHTML||'')+forms[scope];
   }
+}
+
+function recalcEffort(){
+  var RATE=1400;
+  var total=0;
+  document.querySelectorAll('.eff-input').forEach(function(inp){
+    var days=Math.max(0,+inp.value||0);
+    var eurEl=document.querySelector('.eff-eur[data-id="'+inp.id+'"]');
+    if(eurEl)eurEl.textContent='€ '+fmt(days*RATE);
+    // Only count non-PM/hypercare rows
+    var tr=inp.closest('tr');
+    if(tr&&!tr.classList.contains('pm-row')&&!tr.classList.contains('total-row'))total+=days;
+  });
+  var pm=Math.round(total*0.15);
+  var hc=Math.round(total*0.10);
+  var grand=total+pm+hc;
+  var implEl=document.getElementById('impl_total');if(implEl)implEl.textContent=total;
+  var implEurEl=document.getElementById('impl_eur');if(implEurEl)implEurEl.textContent='€ '+fmt(total*RATE);
+  var pmEl=document.getElementById('pm_days');if(pmEl)pmEl.textContent=pm+' PT';
+  var pmEurEl=document.getElementById('pm_eur');if(pmEurEl)pmEurEl.textContent='€ '+fmt(pm*RATE);
+  var hcEl=document.getElementById('hc_days');if(hcEl)hcEl.textContent=hc+' PT';
+  var hcEurEl=document.getElementById('hc_eur');if(hcEurEl)hcEurEl.textContent='€ '+fmt(hc*RATE);
+  var gtEl=document.getElementById('grand_total');if(gtEl)gtEl.textContent=grand;
+  var gtEurEl=document.getElementById('grand_eur');if(gtEurEl)gtEurEl.textContent='€ '+fmt(grand*RATE);
+  var mainEl=document.getElementById('main_total');if(mainEl)mainEl.textContent=grand+' PT';
 }
 
 function recomputeExpand(){
