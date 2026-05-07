@@ -3,1670 +3,420 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>bdg – Planungslösung Assessment</title>
+<title>bdg – Discovery Call · TAS Mülheim</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem}
-.wrap{width:100%;max-width:720px}
-.header{margin-bottom:1.75rem}
-.logo{font-size:11px;font-weight:700;letter-spacing:.12em;color:#aaa;text-transform:uppercase;margin-bottom:.4rem}
-.title{font-size:24px;font-weight:500;color:#1a1a18;margin-bottom:.25rem}
-.subtitle{font-size:13px;color:#888;line-height:1.5}
-.card{background:#fff;border-radius:16px;padding:2rem;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);margin-bottom:1rem}
-.prog{height:3px;background:#e8e8e5;border-radius:999px;margin-bottom:.6rem;overflow:hidden}
-.pf{height:100%;background:#1D9E75;border-radius:999px;transition:width .4s ease}
-.si{font-size:12px;color:#aaa;margin-bottom:1.5rem}
-.step{display:none}.step.active{display:block;animation:fi .2s ease}
-@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.sh{font-size:20px;font-weight:500;margin-bottom:.3rem;color:#1a1a18}
-.ss{font-size:13px;color:#999;margin-bottom:1.5rem;line-height:1.5}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+.wrap{width:100%;max-width:680px}
+.header{margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-start}
+.header-left .logo{font-size:11px;font-weight:700;letter-spacing:.12em;color:#aaa;text-transform:uppercase;margin-bottom:.3rem}
+.header-left .title{font-size:22px;font-weight:500;color:#1a1a18}
+.header-left .sub{font-size:13px;color:#888;margin-top:.2rem}
+.saved-badge{display:none;background:#e6f4f0;color:#0F6E56;font-size:12px;font-weight:500;padding:6px 12px;border-radius:999px;align-items:center;gap:6px}
+.saved-badge.show{display:flex}
 
-/* Scope selector */
-.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
-.scope-card{border:1.5px solid #e8e8e5;border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:all .15s;background:#fff;text-align:left;font-family:inherit}
-.scope-card:hover{border-color:#aaa}
-.scope-card.on{border-color:#1D9E75;background:#e6f4f0}
-.scope-card .sc-icon{font-size:20px;margin-bottom:.4rem;display:block}
-.scope-card .sc-name{font-size:13px;font-weight:600;color:#1a1a18;display:block;margin-bottom:.2rem}
-.scope-card .sc-desc{font-size:11px;color:#999;line-height:1.4;display:block}
-.scope-card.on .sc-name{color:#0F6E56}
-.scope-card.on .sc-desc{color:#5a9e88}
+.card{background:#fff;border-radius:16px;padding:1.75rem;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);margin-bottom:1rem}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1D9E75;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #e8f4f0}
 
-/* Section labels */
-.sec-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1D9E75;margin:1.5rem 0 .75rem;padding-bottom:.35rem;border-bottom:1px solid #e8f4f0;display:flex;align-items:center;gap:8px}
-.sec-label .sl-badge{background:#1D9E75;color:#fff;font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;letter-spacing:.03em}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:500;color:#555}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1px solid #e0e0db;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a18;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#9ED8C8}
+.field textarea{resize:vertical;min-height:72px;line-height:1.5}
+.field select{cursor:pointer}
 
-.qg{margin-bottom:1.25rem}
-.ql{font-size:13px;font-weight:500;margin-bottom:.4rem;color:#1a1a18}
-.qs{font-size:11px;color:#bbb;margin-bottom:.5rem;font-style:italic;line-height:1.4}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 14px;border-radius:999px;border:1px solid #e0e0db;font-size:12px;cursor:pointer;background:#fff;color:#666;font-family:inherit;transition:all .15s;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.1rem}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid #e0e0db;font-size:12px;cursor:pointer;background:#fff;color:#666;font-family:inherit;transition:all .15s}
 .chip:hover{border-color:#bbb;color:#1a1a18}
 .chip.on{background:#e6f4f0;color:#0F6E56;border-color:#9ED8C8;font-weight:500}
+.chip.pre{background:#fff8ec;color:#a07000;border-color:#ffd980;font-weight:500}
 
-/* Planning type cards */
-.pt-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:.5rem}
-.pt-card{border:1px solid #e8e8e5;border-radius:12px;overflow:hidden}
-.pt-head{display:flex;align-items:center;gap:10px;padding:.75rem 1rem;background:#f8f8f6}
-.pt-icon{font-size:16px;flex-shrink:0}
-.pt-label{font-size:13px;font-weight:500;color:#1a1a18;flex:1}
-.pt-toggle{display:flex;gap:5px;flex-wrap:wrap}
-.pt-btn{padding:4px 10px;border-radius:999px;border:1px solid #e0e0db;font-size:11px;cursor:pointer;background:#fff;color:#888;font-family:inherit;font-weight:500;transition:all .12s}
-.pt-btn.ay{background:#e6f4f0;color:#0F6E56;border-color:#9ED8C8}
-.pt-btn.ae{background:#fff8ec;color:#a07000;border-color:#ffd980}
-.pt-btn.an{background:#f5f5f3;color:#888;border-color:#ddd}
-.pt-btn.ao{background:#f0f0ff;color:#5555cc;border-color:#c0c0ff}
-.pt-detail{display:none;padding:.85rem 1rem;border-top:1px solid #e8e8e5;background:#fff}
-.pt-detail.open{display:block}
-.pt-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.5rem}
-.pt-field label{font-size:11px;color:#aaa;font-weight:500;display:block;margin-bottom:.3rem}
-.sw-row{display:flex;align-items:center;gap:10px}
-.sw-row input[type=range]{flex:1;accent-color:#1D9E75}
-.sv{font-size:13px;font-weight:500;min-width:55px;text-align:right;color:#1a1a18}
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.25rem}
+.scope-btn{border:1.5px solid #e8e8e5;border-radius:10px;padding:.75rem 1rem;cursor:pointer;background:#fff;font-family:inherit;text-align:left;transition:all .15s}
+.scope-btn:hover{border-color:#aaa}
+.scope-btn.on{border-color:#1D9E75;background:#e6f4f0}
+.scope-btn .si{font-size:16px;display:block;margin-bottom:.2rem}
+.scope-btn .sn{font-size:12px;font-weight:600;color:#1a1a18;display:block}
+.scope-btn.on .sn{color:#0F6E56}
+.scope-btn .sd{font-size:11px;color:#999;display:block;margin-top:.1rem;line-height:1.3}
 
-/* Hidden sections */
-.scope-section{display:none}
-.scope-section.visible{display:block}
+.stars{display:flex;gap:4px}
+.star{font-size:20px;cursor:pointer;color:#e0e0db;transition:color .1s;border:none;background:none;font-family:inherit;padding:0}
+.star.on{color:#fbbf24}
 
-.ng{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.nc{background:#f8f8f6;border-radius:10px;padding:.85rem 1rem;border:1px solid #e8e8e5}
-.nt{font-size:12px;font-weight:600;margin-bottom:.1rem;color:#1a1a18}
-.nd{font-size:11px;color:#bbb;margin-bottom:.5rem;line-height:1.4}
-.nc input[type=number]{width:100%;font-size:22px;font-weight:500;border:none;background:transparent;color:#1a1a18;font-family:inherit}
-.nc input[type=number]:focus{outline:none}
-.nc input[type=number]::-webkit-inner-spin-button{opacity:.3}
-.nav{display:flex;gap:10px;margin-top:1.75rem;justify-content:space-between;align-items:center}
-.btn{padding:10px 22px;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;border:1px solid #e0e0db;background:#f5f5f3;color:#1a1a18;transition:all .15s}
-.btn:hover{background:#eaeae7}
-.btnp{background:#1D9E75;border-color:#1D9E75;color:#fff}
-.btnp:hover{background:#0F6E56}
+.pain-grid{display:flex;flex-direction:column;gap:6px}
+.pain-item{display:flex;align-items:center;gap:8px;padding:.6rem .8rem;background:#f8f8f6;border-radius:8px;border:1px solid #e8e8e5;cursor:pointer;transition:all .15s}
+.pain-item:hover{border-color:#bbb}
+.pain-item.on{background:#fff0ee;border-color:#ffb8b0}
+.pain-item .pi{font-size:14px;flex-shrink:0}
+.pain-item .pt{font-size:12px;color:#444;flex:1}
+.pain-item input[type=checkbox]{width:15px;height:15px;accent-color:#e05a3a;flex-shrink:0}
 
-/* Loading */
-.loading{text-align:center;padding:3.5rem 1rem}
-.dots{display:flex;gap:7px;justify-content:center;margin-bottom:1rem}
-.dot{width:9px;height:9px;border-radius:50%;background:#1D9E75;animation:pu 1.2s ease-in-out infinite}
-.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
-@keyframes pu{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
-.lt{font-size:13px;color:#aaa}
+.ql{font-size:12px;font-weight:500;color:#555;margin-bottom:.4rem}
 
-/* Results */
-.st{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#bbb;margin:1.5rem 0 .65rem}
-.rp{border-radius:14px;padding:1.4rem;margin-bottom:1rem}
-.rp.jedox{background:linear-gradient(135deg,#e8f4ff,#d6ecff)}
-.rp.board{background:linear-gradient(135deg,#e6f4f0,#d0ede6)}
-.rp.both{background:#f5f5f3;border:1px solid #e8e8e5}
-.rl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
-.rl.jedox{color:#185FA5}.rl.board{color:#0F6E56}.rl.both{color:#888}
-.rn{font-size:26px;font-weight:500;margin-bottom:.5rem;color:#1a1a18}
-.rr{font-size:13px;color:#444;line-height:1.65}
-.cb{height:5px;background:rgba(0,0,0,.07);border-radius:999px;margin-top:1rem;overflow:hidden}
-.cbf{height:100%;border-radius:999px;background:#1D9E75}
-.ct{font-size:11px;color:#aaa;margin-top:.3rem}
+.save-section{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04)}
+.save-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0F6E56,#1D9E75);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.save-btn:hover{opacity:.9}
+.save-btn:disabled{opacity:.6;cursor:not-allowed}
+.save-status{margin-top:.75rem;font-size:13px;text-align:center;display:none}
+.save-status.ok{color:#0F6E56;display:block}
+.save-status.err{color:#e05a3a;display:block}
 
-/* Scope badges in result */
-.scope-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.sp{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500}
-.sp.finance{background:#e8f4ff;color:#185FA5}
-.sp.people{background:#f0e8ff;color:#6633cc}
-.sp.energy{background:#fff3cc;color:#8a6200}
-.sp.cs{background:#ffe8f0;color:#cc2255}
+.next-call{background:#f0f0ff;border:1px solid #c0c0ff;border-radius:10px;padding:.85rem 1rem;margin-top:.75rem}
+.next-call label{font-size:12px;font-weight:500;color:#5555cc;display:block;margin-bottom:.35rem}
+.next-call input{width:100%;padding:7px 10px;border:1px solid #c0c0ff;border-radius:6px;font-size:13px;font-family:inherit;background:#fff}
+.next-call input:focus{outline:none;border-color:#8888ff}
 
-/* PT coverage */
-.pt-coverage{display:flex;flex-direction:column;gap:8px;margin-bottom:.5rem}
-.ptc-row{display:flex;align-items:center;gap:10px;background:#f8f8f6;border-radius:10px;padding:.75rem 1rem;border:1px solid #e8e8e5}
-.ptc-icon{font-size:15px;flex-shrink:0}
-.ptc-body{flex:1}
-.ptc-title{font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:.15rem}
-.ptc-note{font-size:12px;color:#777;line-height:1.4}
-.ptc-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}
-.bg{background:#d0ede6;color:#0F6E56}
-.by{background:#fff3cc;color:#9a6e00}
-.br{background:#ffe5e0;color:#c0392b}
-.bx{background:#efefef;color:#888}
+.hint{font-size:11px;color:#bbb;margin-top:.5rem;text-align:center;line-height:1.5}
+.footer{text-align:center;font-size:11px;color:#ccc;padding:.5rem 0 1.5rem;margin-top:.5rem}
 
-/* Pros/Cons */
-.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.5rem}
-.pc-box{border-radius:12px;padding:1rem 1.1rem}
-.pc-box.jb{background:#e8f4ff;border:1px solid #b0d4ff}
-.pc-box.bb{background:#e6f4f0;border:1px solid #9ED8C8}
-.pc-head{font-size:12px;font-weight:700;margin-bottom:.7rem}
-.pc-head.j{color:#185FA5}.pc-head.b{color:#0F6E56}
-.pc-badge-j{background:#185FA5;color:#fff;font-size:10px;padding:2px 7px;border-radius:999px}
-.pc-badge-b{background:#0F6E56;color:#fff;font-size:10px;padding:2px 7px;border-radius:999px}
-.pc-list{list-style:none;display:flex;flex-direction:column;gap:5px}
-.pc-item{font-size:12px;color:#444;line-height:1.5;display:flex;gap:6px;align-items:flex-start}
-.pc-item.pro::before{content:'✓';color:#1D9E75;font-weight:700;flex-shrink:0;margin-top:1px}
-.pc-item.con::before{content:'✗';color:#e05a3a;font-weight:700;flex-shrink:0;margin-top:1px}
-
-/* Module area cards */
-.area-card{border:1px solid #e8e8e5;border-radius:12px;padding:1rem 1.1rem;margin-bottom:10px;background:#fff}
-.area-card.area-high{border-color:#9ED8C8;background:#fafffe}
-.area-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
-.area-title{font-size:13px;font-weight:600;color:#1a1a18}
-.area-note{font-size:12px;color:#777;line-height:1.5;margin-bottom:.6rem}
-.core-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:.6rem}
-.core-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#0F6E56;background:#d0ede6;padding:2px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0}
-.core-chip{font-size:11px;padding:3px 9px;border-radius:999px;background:#e6f4f0;color:#0F6E56;border:1px solid #9ED8C8}
-.sub-section{margin-top:.5rem;border-top:1px solid #f0f0ee;padding-top:.5rem}
-.sub-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#999;margin-bottom:.4rem}
-.sub-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:.35rem}
-.sub-item-opt{opacity:.7}
-.sub-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.sub-rec{background:#1D9E75}
-.sub-opt{background:#ccc}
-.sub-name{font-size:12px;font-weight:500;color:#1a1a18}
-.sub-why{font-size:12px;color:#888}
-
-/* Result Tabs */
-.res-tabs{display:flex;gap:6px;margin-bottom:1.25rem;border-bottom:1px solid #e8e8e5;padding-bottom:0}
-.res-tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;font-family:inherit;color:#999;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
-.res-tab:hover{color:#1a1a18}
-.res-tab.active{color:#0F6E56;border-bottom-color:#1D9E75}
-.res-panel{display:none}.res-panel.active{display:block}
-
-/* Protocol */
-.proto-section{margin-bottom:1rem}
-.proto-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#bbb;margin-bottom:.5rem}
-.proto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.proto-item{background:#f8f8f6;border-radius:8px;padding:.6rem .8rem;border:1px solid #e8e8e5}
-.proto-label{font-size:11px;color:#aaa;margin-bottom:.15rem}
-.proto-val{font-size:12px;font-weight:500;color:#1a1a18}
-.proto-val.empty{color:#ccc;font-weight:400;font-style:italic}
-
-/* Effort Estimation Table */
-.eff-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
-.eff-title{font-size:15px;font-weight:500;color:#1a1a18}
-.eff-rate{font-size:12px;color:#888;background:#f5f5f3;padding:4px 10px;border-radius:999px}
-.eff-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem}
-.eff-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#aaa;padding:.5rem .6rem;border-bottom:1px solid #e8e8e5}
-.eff-table th.r{text-align:right}
-.eff-table td{padding:.5rem .6rem;border-bottom:1px solid #f5f5f3;color:#444;vertical-align:top}
-.eff-table td.r{text-align:right}
-.eff-table tr.section-row td{background:#f8f8f6;font-weight:600;color:#1a1a18;font-size:12px}
-.eff-table tr.total-row td{background:#e6f4f0;font-weight:700;color:#0F6E56;border-top:2px solid #9ED8C8}
-.eff-table tr.total-row td.r{color:#0F6E56}
-.eff-table tr.pm-row td{background:#fff8ec;color:#a07000}
-.eff-days{font-weight:500;color:#1a1a18}
-.eff-input{width:48px;border:1px solid #e0e0db;border-radius:6px;padding:3px 6px;font-size:12px;text-align:right;font-family:inherit;background:#fff;color:#1a1a18}
-.eff-input:focus{outline:none;border-color:#9ED8C8}
-.eff-note{font-size:11px;color:#aaa;margin-top:.2rem;line-height:1.4}
-.eff-total-box{background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:12px;padding:1.2rem 1.4rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
-.eff-total-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.8)}
-.eff-total-val{font-size:28px;font-weight:600;color:#fff}
-.eff-print-btn{padding:8px 16px;border-radius:8px;border:1px solid #e0e0db;background:#f5f5f3;font-size:12px;cursor:pointer;font-family:inherit;color:#555;margin-right:8px}
-.eff-print-btn:hover{background:#eee}
-.eff-ass-note{font-size:11px;color:#bbb;font-style:italic;line-height:1.5;margin-top:.75rem}
-
-/* Value */
-.hero-val{background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:14px;padding:1.5rem;margin-bottom:.75rem;text-align:center}
-.hero-val .label{font-size:11px;font-weight:600;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
-.hero-val .amount{font-size:44px;font-weight:600;color:#fff;line-height:1}
-.hero-val .sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:.5rem}
-.hl-box{border-radius:12px;padding:1.1rem 1.35rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem}
-.hl-box.blue{background:#e8f4ff;border:1px solid #b0d4ff}
-.hl-box.amber{background:#fff8ec;border:1px solid #ffd980}
-.hl-box.red{background:#fff0ee;border:1px solid #ffb8b0}
-.hl-num{font-size:28px;font-weight:600;white-space:nowrap;line-height:1.15}
-.blue .hl-num{color:#185FA5}.amber .hl-num{color:#a07000}.red .hl-num{color:#b03020}
-.hl-text{font-size:13px;color:#444;line-height:1.55}
-.hl-text strong{font-weight:600}
-.vg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.5rem}
-.vc{background:#f8f8f6;border-radius:10px;padding:.85rem 1rem;border:1px solid #e8e8e5}
-.vc.hi{background:#e6f4f0;border-color:#9ED8C8}
-.vl{font-size:11px;color:#aaa;margin-bottom:.2rem}
-.vc.hi .vl{color:#0F6E56}
-.vn{font-size:18px;font-weight:500;color:#1a1a18}
-.vno{font-size:11px;color:#aaa;margin-top:.15rem}
-.rc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.5rem}
-.ri{padding:5px 11px;border-radius:8px;background:#f5f5f3;border:1px solid #e0e0db;font-size:12px;color:#555}
-.nn{font-size:13px;color:#555;line-height:1.65;background:#f8f8f6;padding:1rem;border-radius:10px;border:1px solid #e8e8e5;margin-bottom:.5rem}
-.disclaimer{font-size:11px;color:#ccc;margin-top:1rem;line-height:1.5;font-style:italic}
-
-/* Quick expand panel */
-.expand-panel{border:1.5px dashed #d0d0cc;border-radius:12px;overflow:hidden;margin-top:1.25rem}
-.expand-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;cursor:pointer;background:#fafaf8}
-.expand-head:hover{background:#f5f5f0}
-.expand-title{font-size:13px;font-weight:500;color:#555}
-.expand-arrow{font-size:12px;color:#aaa;transition:transform .2s}
-.expand-arrow.open{transform:rotate(180deg)}
-.expand-body{display:none;padding:1.2rem;background:#fff;border-top:1px solid #e8e8e5}
-.expand-body.open{display:block}
-.expand-scope-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
-.esb{padding:7px 14px;border-radius:999px;border:1px solid #e0e0db;font-size:12px;cursor:pointer;background:#fff;color:#666;font-family:inherit;transition:all .15s}
-.esb:hover{border-color:#bbb;color:#1a1a18}
-.esb.on{background:#e6f4f0;color:#0F6E56;border-color:#9ED8C8;font-weight:500}
-.mini-form{display:none;animation:fi .2s ease}
-.mini-form.visible{display:block}
-.mini-field{margin-bottom:.85rem}
-.mini-field label{font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:.35rem}
-
-.rbtn{font-size:12px;color:#aaa;cursor:pointer;border:none;background:none;font-family:inherit;text-decoration:underline;text-underline-offset:3px;padding:0}
-.divider{border:none;border-top:1px solid #f0f0ee;margin:1.25rem 0}
-.footer{text-align:center;font-size:11px;color:#ccc;padding:.5rem 0 1.5rem}
-@media(max-width:540px){.scope-grid,.ng,.vg,.pc-grid,.pt-row{grid-template-columns:1fr}.hl-box{flex-direction:column;gap:.5rem}.hero-val .amount{font-size:34px}.pt-toggle{flex-wrap:wrap}}
+@media(max-width:500px){.row,.scope-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <div class="logo">better decisions group · bdg</div>
-    <div class="title">Planungslösung Assessment</div>
-    <div class="subtitle">Gezielte Fragen basierend auf eurem Planungsfokus – kein Overhead, nur was relevant ist.</div>
+    <div class="header-left">
+      <div class="logo">better decisions group · bdg</div>
+      <div class="title">Discovery Call Protokoll</div>
+      <div class="sub">Infos sammeln – auch unvollständig ist ok</div>
+    </div>
+    <div class="saved-badge" id="saved-badge">✓ In Notion gespeichert</div>
   </div>
 
+  <!-- UNTERNEHMEN -->
   <div class="card">
-    <div class="prog"><div class="pf" id="pf" style="width:0%"></div></div>
-    <div class="si" id="si">Schritt 1 von 5</div>
-
-    <!-- ── STEP 1: Kontext ── -->
-    <div class="step active" id="s1">
-      <div class="sh">Unternehmenskontext</div>
-      <div class="ss">Kurzer Überblick – Branche, Größe und aktuelles Tool.</div>
-      <div class="qg"><div class="ql">Branche</div><div class="chips">
-        <button class="chip" onclick="pick(this,'industry','energy')">Energy & Utilities</button>
-        <button class="chip" onclick="pick(this,'industry','finance')">Finance & Banking</button>
-        <button class="chip" onclick="pick(this,'industry','manufacturing')">Manufacturing</button>
-        <button class="chip" onclick="pick(this,'industry','retail')">Retail & Consumer Goods</button>
-        <button class="chip" onclick="pick(this,'industry','services')">Services / BPO</button>
-        <button class="chip" onclick="pick(this,'industry','housing')">Housing & Real Estate</button>
-        <button class="chip" onclick="pick(this,'industry','it')">IT & Telecom</button>
-        <button class="chip" onclick="pick(this,'industry','automotive')">Automotive</button>
-        <button class="chip" onclick="pick(this,'industry','other')">Sonstige</button>
-      </div></div>
-      <div class="qg"><div class="ql">Mitarbeiterzahl gesamt</div><div class="chips">
-        <button class="chip" onclick="pick(this,'employees','lt100')">unter 100</button>
-        <button class="chip" onclick="pick(this,'employees','100-500')">100 – 500</button>
-        <button class="chip" onclick="pick(this,'employees','500-2000')">500 – 2.000</button>
-        <button class="chip" onclick="pick(this,'employees','gt2000')">über 2.000</button>
-      </div></div>
-      <div class="qg"><div class="ql">Anzahl rechtlicher Einheiten / Gesellschaften</div><div class="chips">
-        <button class="chip" onclick="pick(this,'entities','1')">1 Einheit</button>
-        <button class="chip" onclick="pick(this,'entities','2-5')">2 – 5</button>
-        <button class="chip" onclick="pick(this,'entities','6-15')">6 – 15</button>
-        <button class="chip" onclick="pick(this,'entities','gt15')">mehr als 15</button>
-      </div></div>
-      <div class="qg"><div class="ql">Aktuelles Planungstool</div><div class="chips">
-        <button class="chip" onclick="pick(this,'currentTool','excel')">Nur Excel</button>
-        <button class="chip" onclick="pick(this,'currentTool','excel_legacy')">Excel + Legacy-System</button>
-        <button class="chip" onclick="pick(this,'currentTool','dedicated')">Dediziertes Planungstool</button>
-        <button class="chip" onclick="pick(this,'currentTool','mix')">Mix verschiedener Tools</button>
-      </div></div>
-      <div class="nav"><div></div><button class="btn btnp" onclick="next()">Weiter →</button></div>
+    <div class="card-title">🏢 Unternehmen & Kontakt</div>
+    <div class="row">
+      <div class="field">
+        <label>Unternehmen</label>
+        <input type="text" id="company" value="TAS Mülheim" placeholder="Firmenname">
+      </div>
+      <div class="field">
+        <label>Ansprechpartner</label>
+        <input type="text" id="contact" value="Ilja van den Haak" placeholder="Name, Rolle">
+      </div>
     </div>
-
-    <!-- ── STEP 2: Scope + Planungstypen ── -->
-    <div class="step" id="s2">
-      <div class="sh">Planungsfokus & Prozesse</div>
-      <div class="ss">Was soll die Lösung abdecken? Nur relevante Fragen werden angezeigt.</div>
-
-      <div class="ql" style="margin-bottom:.75rem">Was soll die Lösung primär abdecken? <span style="font-size:11px;color:#bbb;font-weight:400">(Mehrfachauswahl)</span></div>
-      <div class="scope-grid" id="scope-grid">
-        <button class="scope-card" onclick="toggleScope('finance',this)">
-          <span class="sc-icon">💰</span>
-          <span class="sc-name">Finance / FP&A</span>
-          <span class="sc-desc">GuV, Bilanz, Cash Flow, Vertriebsplanung, Konsolidierung</span>
-        </button>
-        <button class="scope-card" onclick="toggleScope('people',this)">
-          <span class="sc-icon">👥</span>
-          <span class="sc-name">People / HR</span>
-          <span class="sc-desc">Personalkosten, FTE-Planung, Headcount, Personaleinsatz</span>
-        </button>
-        <button id="scope-card-energy" class="scope-card" onclick="toggleScope('energy',this)">
-          <span class="sc-icon">⚡</span>
-          <span class="sc-name">Energy</span>
-          <span class="sc-desc">Tarife, Lastprofile, Mengenplanung, Netzkosten</span>
-        </button>
-        <button class="scope-card" onclick="toggleScope('cs',this)">
-          <span class="sc-icon">📞</span>
-          <span class="sc-name">Customer Service / CS|Control</span>
-          <span class="sc-desc">Kapazitätssteuerung, KPI-Dashboards, Cost-to-Serve</span>
-        </button>
+    <div class="row">
+      <div class="field">
+        <label>Branche</label>
+        <select id="industry">
+          <option value="">– bitte wählen –</option>
+          <option value="energy">Energy & Utilities</option>
+          <option value="finance">Finance & Banking</option>
+          <option value="manufacturing">Manufacturing</option>
+          <option value="retail">Retail & Consumer Goods</option>
+          <option value="services" selected>Services / BPO</option>
+          <option value="housing">Housing & Real Estate</option>
+          <option value="it">IT & Telecom</option>
+          <option value="automotive">Automotive</option>
+          <option value="other">Sonstige</option>
+        </select>
       </div>
-
-      <!-- FINANCE SECTION -->
-      <div class="scope-section" id="sec-finance">
-        <div class="sec-label"><span class="sl-badge">Finance</span> Planungstypen & Aufwand</div>
-        <div class="qs" style="margin-bottom:.75rem">In Tool / Excel / Nicht vorhanden / Unklar</div>
-        <div class="pt-grid">
-          <div class="pt-card">
-            <div class="pt-head"><span class="pt-icon">📋</span><span class="pt-label" data-ptlabel="budget">Budget / Jahresplanung</span>
-              <div class="pt-toggle">
-                <button class="pt-btn" onclick="setPT(event,'budget','tool')">In Tool</button>
-                <button class="pt-btn" onclick="setPT(event,'budget','excel')">Excel</button>
-                <button class="pt-btn" onclick="setPT(event,'budget','no')">Nicht vorhanden</button>
-                <button class="pt-btn" onclick="setPT(event,'budget','open')">Unklar</button>
-              </div>
-            </div>
-            <div class="pt-detail" id="det-budget">
-              <div class="pt-row">
-                <div class="pt-field"><label>Dauer pro Zyklus</label><div class="sw-row"><input type="range" min="1" max="16" value="4" step="1" oninput="state.budget.weeks=+this.value;this.nextElementSibling.textContent=this.value+' Wo'"><div class="sv">4 Wo</div></div></div>
-                <div class="pt-field"><label>Iterationen</label><div class="sw-row"><input type="range" min="1" max="10" value="3" step="1" oninput="state.budget.iter=+this.value;this.nextElementSibling.textContent=this.value+'×'"><div class="sv">3×</div></div></div>
-                <div class="pt-field"><label>Beteiligte Personen</label><div class="sw-row"><input type="range" min="1" max="40" value="5" step="1" oninput="state.budget.people=+this.value;this.nextElementSibling.textContent=this.value+' P'"><div class="sv">5 P</div></div></div>
-                <div class="pt-field"><label>Ansatz</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'budget','dir','topdown')">Top-Down</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'budget','dir','bottomup')">Bottom-Up</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'budget','dir','hybrid')">Hybrid</button></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pt-card">
-            <div class="pt-head"><span class="pt-icon">🔄</span><span class="pt-label" data-ptlabel="forecast">Rolling Forecast / Hochrechnung</span>
-              <div class="pt-toggle">
-                <button class="pt-btn" onclick="setPT(event,'forecast','tool')">In Tool</button>
-                <button class="pt-btn" onclick="setPT(event,'forecast','excel')">Excel</button>
-                <button class="pt-btn" onclick="setPT(event,'forecast','no')">Nicht vorhanden</button>
-                <button class="pt-btn" onclick="setPT(event,'forecast','open')">Unklar</button>
-              </div>
-            </div>
-            <div class="pt-detail" id="det-forecast">
-              <div class="pt-row">
-                <div class="pt-field"><label>Frequenz</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','freq','monthly')">Monatlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','freq','quarterly')">Quartalsweise</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','freq','adhoc')">Ad-hoc</button></div></div>
-                <div class="pt-field"><label>Stunden pro Update / Person</label><div class="sw-row"><input type="range" min="1" max="20" value="4" step="1" oninput="state.forecast.hoursPerCycle=+this.value;this.nextElementSibling.textContent=this.value+'h'"><div class="sv">4h</div></div></div>
-                <div class="pt-field"><label>Beteiligte Personen</label><div class="sw-row"><input type="range" min="1" max="20" value="3" step="1" oninput="state.forecast.people=+this.value;this.nextElementSibling.textContent=this.value+' P'"><div class="sv">3 P</div></div></div>
-                <div class="pt-field"><label>Methode</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','method','manual')">Manuell</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','method','driver')">Treiber-basiert</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'forecast','method','mix')">Mix</button></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pt-card">
-            <div class="pt-head"><span class="pt-icon">📈</span><span class="pt-label" data-ptlabel="mfp">Mittelfristplanung (3–5 Jahre)</span>
-              <div class="pt-toggle">
-                <button class="pt-btn" onclick="setPT(event,'mfp','tool')">In Tool</button>
-                <button class="pt-btn" onclick="setPT(event,'mfp','excel')">Excel</button>
-                <button class="pt-btn" onclick="setPT(event,'mfp','no')">Nicht vorhanden</button>
-                <button class="pt-btn" onclick="setPT(event,'mfp','open')">Unklar</button>
-              </div>
-            </div>
-            <div class="pt-detail" id="det-mfp">
-              <div class="pt-row">
-                <div class="pt-field"><label>Horizont</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','horizon','3y')">3 Jahre</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','horizon','5y')">5 Jahre</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','horizon','10y')">10+ Jahre</button></div></div>
-                <div class="pt-field"><label>Verknüpfung mit Jahresbudget?</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','link','yes')">Ja</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','link','no')">Nein</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','link','open')">Unklar</button></div></div>
-                <div class="pt-field"><label>Szenarien?</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','scenarios','yes')">Vorhanden</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','scenarios','wanted')">Gewünscht</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'mfp','scenarios','no')">Nicht nötig</button></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pt-card">
-            <div class="pt-head"><span class="pt-icon">🎯</span><span class="pt-label">Strategische Langfristplanung (5–10 Jahre)</span>
-              <div class="pt-toggle">
-                <button class="pt-btn" onclick="setPT(event,'strategy','yes')">Ja, vorhanden</button>
-                <button class="pt-btn" onclick="setPT(event,'strategy','wanted')">Gewünscht</button>
-                <button class="pt-btn" onclick="setPT(event,'strategy','no')">Nicht relevant</button>
-                <button class="pt-btn" onclick="setPT(event,'strategy','open')">Unklar</button>
-              </div>
-            </div>
-            <div style="padding:.6rem 1rem .75rem;background:#fafaf8;border-top:1px solid #e8e8e5;font-size:12px;color:#999;line-height:1.5">
-              Gemeint ist: Gibt es eine übergeordnete Unternehmensplanung mit langfristigen Wachstumszielen, die dann in MFP und Jahresbudget kaskadiert? Das ist ein klares BOARD-Signal wenn vorhanden – und oft der fehlende Baustein zwischen Strategie und operativem Plan.
-            </div>
-          </div>
-        </div>
-
-        <div class="qg" style="margin-top:1rem">
-          <div class="ql">Finance-Schwerpunkte (Mehrfachauswahl)</div>
-          <div class="chips" id="finance-scope-chips">
-            <button class="chip" data-label="guv" onclick="pick(this,'scope','guv',true)">GuV / P&L</button>
-            <button class="chip" data-label="bilanz" onclick="pick(this,'scope','bilanz',true)">Bilanz & Cash Flow</button>
-            <button class="chip" data-label="vertrieb" onclick="pick(this,'scope','vertrieb',true)">Vertrieb & Umsatz</button>
-            <button class="chip" data-label="investitionen" onclick="pick(this,'scope','investitionen',true)">Investitionsplanung</button>
-            <button class="chip" data-label="konsolidierung" onclick="pick(this,'scope','konsolidierung',true)">Konzernkonsolidierung</button>
-            <button class="chip" data-label="profitability" onclick="pick(this,'scope','profitability',true)">DB-Rechnung / Profitabilität</button>
-          </div>
-        </div>
+      <div class="field">
+        <label>Mitarbeiterzahl</label>
+        <select id="employees">
+          <option value="">– bitte wählen –</option>
+          <option value="lt100">unter 100</option>
+          <option value="100-500" selected>100 – 500</option>
+          <option value="500-2000">500 – 2.000</option>
+          <option value="gt2000">über 2.000</option>
+        </select>
       </div>
-
-      <!-- PEOPLE SECTION -->
-      <div class="scope-section" id="sec-people">
-        <div class="sec-label"><span class="sl-badge" style="background:#6633cc">People</span> Personalplanung</div>
-        <div class="qg">
-          <div class="ql">Wie viele Personen plant / verwaltet ihr?</div>
-          <div class="pt-row" style="margin-top:.3rem">
-            <div class="pt-field"><label>Planende Personen (HR/Finance)</label><div class="sw-row"><input type="range" min="1" max="20" value="3" step="1" oninput="state.people.planners=+this.value;this.nextElementSibling.textContent=this.value+' P'"><div class="sv">3 P</div></div></div>
-            <div class="pt-field"><label>Planungszyklen pro Jahr</label><div class="chips" style="margin-top:.2rem"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'people','freq','annual')">Jährlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'people','freq','semi')">Halbjährlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pickPT(this,'people','freq','rolling')">Rolling</button></div></div>
-          </div>
-        </div>
-        <div class="qg">
-          <div class="ql" id="people-scope-title">People-Schwerpunkte (Mehrfachauswahl)</div>
-          <div class="chips" id="people-scope-chips">
-            <button class="chip" data-label="personal" onclick="pick(this,'scope','personal',true)">Personalkosten & FTE</button>
-            <button class="chip" data-label="headcount" onclick="pick(this,'scope','headcount',true)">Headcount-Planung</button>
-            <button class="chip" data-label="recruiting" onclick="pick(this,'scope','recruiting',true)">Recruiting-Planung</button>
-            <button class="chip" data-label="capacity" onclick="pick(this,'scope','capacity',true)">Personaleinsatzplanung</button>
-          </div>
-        </div>
-        <div class="qg">
-          <div class="ql">Größter Pain Point People</div>
-          <div class="chips">
-            <button class="chip" onclick="pick(this,'peoplePain','data')">Datenbeschaffung aus HR-System aufwändig</button>
-            <button class="chip" onclick="pick(this,'peoplePain','link')">Personalkosten nicht mit Finance verknüpft</button>
-            <button class="chip" onclick="pick(this,'peoplePain','version')">Versionschaos bei Planungsrunden</button>
-            <button class="chip" onclick="pick(this,'peoplePain','approval')">Langer Genehmigungsprozess</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ENERGY SECTION -->
-      <div class="scope-section" id="sec-energy">
-        <div class="sec-label"><span class="sl-badge" style="background:#8a6200">Energy</span> Energieplanung</div>
-        <div class="qg">
-          <div class="ql">Energy-Schwerpunkte (Mehrfachauswahl)</div>
-          <div class="chips">
-            <button class="chip" onclick="pick(this,'scope','energie',true)">Tarif- & Preisplanung</button>
-            <button class="chip" onclick="pick(this,'scope','mengen',true)">Mengen- & Lastprofile</button>
-            <button class="chip" onclick="pick(this,'scope','netz',true)">Netzkosten</button>
-            <button class="chip" onclick="pick(this,'scope','cx',true)">Kundenservice Steuerung</button>
-          </div>
-        </div>
-        <div class="qg">
-          <div class="ql">Ist CS|Control (Kundendienst-Steuerung) relevant?</div>
-          <div class="chips">
-            <button class="chip" onclick="pick(this,'csControl','yes')">Ja – wir haben eigenen Kundenservice</button>
-            <button class="chip" onclick="pick(this,'csControl','no')">Nein</button>
-            <button class="chip" onclick="pick(this,'csControl','open')">Noch offen</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CS SECTION -->
-      <div class="scope-section" id="sec-cs">
-        <div class="sec-label"><span class="sl-badge" style="background:#cc2255">CS|Control</span> Customer Service</div>
-        <div class="qg">
-          <div class="ql">Wie viele Agents / Mitarbeiter im Customer Service?</div>
-          <div class="sw-row" style="margin-top:.3rem"><input type="range" min="10" max="2000" value="100" step="10" oninput="state.cs.agents=+this.value;document.getElementById('csv').textContent=this.value+' MA'"><div class="sv" id="csv">100 MA</div></div>
-        </div>
-        <div class="qg">
-          <div class="ql">Was fehlt heute? (Mehrfachauswahl)</div>
-          <div class="chips">
-            <button class="chip" onclick="pick(this,'csPains','capacity',true)">Kapazitätsplanung pro Campaign/Client</button>
-            <button class="chip" onclick="pick(this,'csPains','kpi',true)">Echtzeit-KPIs (Calls, CSAT, Produktivität)</button>
-            <button class="chip" onclick="pick(this,'csPains','cost',true)">Cost-to-Serve je Client</button>
-            <button class="chip" onclick="pick(this,'csPains','finance',true)">Brücke zu Finance / P&L</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="nav"><button class="btn" onclick="back()">← Zurück</button><button class="btn btnp" onclick="next()">Weiter →</button></div>
     </div>
-
-    <!-- ── STEP 3: Pain Points & Technologie ── -->
-    <div class="step" id="s3">
-      <div class="sh">Pain Points & Technologie</div>
-      <div class="ss">Was treibt den Handlungsbedarf – und welche technischen Rahmenbedingungen gibt es?</div>
-
-      <div class="qg"><div class="ql">Größte Pain Points heute (Mehrfachauswahl)</div><div class="chips">
-        <button class="chip" onclick="pick(this,'pains','zeit',true)">Zu viel Zeit für Datensammlung</button>
-        <button class="chip" onclick="pick(this,'pains','fehler',true)">Fehleranfällige manuelle Prozesse</button>
-        <button class="chip" onclick="pick(this,'pains','transparenz',true)">Fehlende Echtzeit-Transparenz</button>
-        <button class="chip" onclick="pick(this,'pains','szenarien',true)">Keine Szenario-Analysen möglich</button>
-        <button class="chip" onclick="pick(this,'pains','konsolidierung',true)">Konsolidierung sehr aufwändig</button>
-        <button class="chip" onclick="pick(this,'pains','silos',true)">Finance, Ops & HR in Silos</button>
-        <button class="chip" onclick="pick(this,'pains','bi_getrennt',true)">BI und Planung getrennte Tools</button>
-        <button class="chip" onclick="pick(this,'pains','forecast_qual',true)">Forecast-Qualität unzureichend</button>
-        <button class="chip" onclick="pick(this,'pains','mfp_disconnect',true)">MFP und Budget hängen nicht zusammen</button>
-        <button class="chip" onclick="pick(this,'pains','multidim',true)">Viele Dimensionen schwer abbildbar</button>
-      </div></div>
-
-      <div class="qg">
-        <div class="ql">Primärer Planungsfokus</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'planningFocus','finance_only')">Überwiegend Finanzplanung</button>
-          <button class="chip" onclick="pick(this,'planningFocus','finance_ops')">Finance + operative Planung integriert</button>
-          <button class="chip" onclick="pick(this,'planningFocus','ops_heavy')">Überwiegend operative Planung</button>
-          <button class="chip" onclick="pick(this,'planningFocus','bi_planning')">BI + Planning in einer Plattform</button>
-        </div>
+    <div class="row">
+      <div class="field">
+        <label>Rolle des Kontakts</label>
+        <select id="contact_role">
+          <option value="">– bitte wählen –</option>
+          <option value="decision_maker">Entscheider</option>
+          <option value="champion" selected>Champion / Influencer</option>
+          <option value="user">Zukünftiger User</option>
+          <option value="it">IT-Verantwortlicher</option>
+          <option value="unknown">Noch unklar</option>
+        </select>
       </div>
-
-      <div class="qg">
-        <div class="ql">Vorsysteme / Datenquellen (Mehrfachauswahl)</div>
-        <div style="font-size:11px;color:#bbb;margin-bottom:.4rem;margin-top:.2rem;font-style:italic">ERP & Finance</div>
-        <div class="chips" style="margin-bottom:.6rem">
-          <button class="chip" onclick="pick(this,'sourceSystems','sap_s4',true)">SAP S/4HANA</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','sap_ecc',true)">SAP ECC / R3</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','dynamics',true)">Microsoft Dynamics</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','datev',true)">DATEV</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','navision',true)">Navision / Business Central</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','sage',true)">Sage</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','other_erp',true)">Sonstiges ERP</button>
-        </div>
-        <div id="hr-systems-section" style="display:none">
-          <div style="font-size:11px;color:#bbb;margin-bottom:.4rem;font-style:italic">HR & Workforce</div>
-          <div class="chips" style="margin-bottom:.6rem">
-            <button class="chip" onclick="pick(this,'sourceSystems','workday',true)">Workday</button>
-            <button class="chip" onclick="pick(this,'sourceSystems','sap_hcm',true)">SAP HCM / SuccessFactors</button>
-            <button class="chip" onclick="pick(this,'sourceSystems','personio',true)">Personio</button>
-            <button class="chip" onclick="pick(this,'sourceSystems','other_hr',true)">Sonstiges HR-System</button>
-          </div>
-        </div>
-        <div style="font-size:11px;color:#bbb;margin-bottom:.4rem;font-style:italic">Bestehende Planungs- & BI-Tools</div>
-        <div class="chips" style="margin-bottom:.6rem">
-          <button class="chip" onclick="pick(this,'sourceSystems','lucanet',true)">Lucanet</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','corporate_planner',true)">Corporate Planner</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','tagetik',true)">Tagetik / CCH</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','anaplan',true)">Anaplan</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','ibm_pa',true)">IBM Planning Analytics / TM1</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','sap_bpc',true)">SAP BPC / SAP Analytics Cloud</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','power_bi',true)">Power BI</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','tableau',true)">Tableau</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','excel_csv',true)">Excel / CSV</button>
-        </div>
-        <div style="font-size:11px;color:#bbb;margin-bottom:.4rem;font-style:italic">Sonstige</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'sourceSystems','crm',true)">CRM (Salesforce, HubSpot…)</button>
-          <button class="chip" id="chip-other-input" onclick="toggleOtherInput(this)">Sonstiges mit Eingabefunktion</button>
-          <button class="chip" onclick="pick(this,'sourceSystems','unknown',true)">Noch unklar</button>
-        </div>
-        <div id="other-input-wrap" style="display:none;margin-top:.6rem">
-          <input id="other-input-field" type="text" placeholder="Tool-Name eingeben…" oninput="state.otherInputTool=this.value" style="width:100%;padding:8px 12px;border:1px solid #9ED8C8;border-radius:8px;font-size:13px;font-family:inherit;background:#e6f4f0;color:#0F6E56;outline:none">
-        </div>
+      <div class="field">
+        <label>Entscheider (falls bekannt)</label>
+        <input type="text" id="decision_maker" value="Rüdiger Wolf (GF)" placeholder="Name, Rolle">
       </div>
-
-      <div class="qg">
-        <div class="ql">Soll ein BI-Tool abgelöst oder integriert werden?</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'biReplacement','no')">Nein – BI bleibt separat</button>
-          <button class="chip" onclick="pick(this,'biReplacement','integrate')">Integrieren – Planning & BI in einem Tool</button>
-          <button class="chip" onclick="pick(this,'biReplacement','replace')">Ablösen – BI-Tool ersetzen</button>
-          <button class="chip" onclick="pick(this,'biReplacement','open')">Noch offen</button>
-        </div>
-      </div>
-
-      <div class="sec-label" style="margin-top:1.5rem"><span class="sl-badge" style="background:#555">Timing & Priorität</span></div>
-
-      <div class="qg">
-        <div class="ql">Wann soll die Lösung live gehen?</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'goLive','lt3m')">Sofort / &lt; 3 Monate</button>
-          <button class="chip" onclick="pick(this,'goLive','3-6m')">3 – 6 Monate</button>
-          <button class="chip" onclick="pick(this,'goLive','6-12m')">6 – 12 Monate</button>
-          <button class="chip" onclick="pick(this,'goLive','gt12m')">Über 12 Monate</button>
-          <button class="chip" onclick="pick(this,'goLive','open')">Noch offen</button>
-        </div>
-      </div>
-
-      <div class="qg">
-        <div class="ql">Einführungsstrategie</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'rollout','bigbang')">Alles auf einmal (Big Bang)</button>
-          <button class="chip" onclick="pick(this,'rollout','phased')">Phasenweise – erst das Wichtigste</button>
-          <button class="chip" onclick="pick(this,'rollout','pilot')">Erst Pilot, dann ausrollen</button>
-          <button class="chip" onclick="pick(this,'rollout','open')">Noch offen</button>
-        </div>
-      </div>
-
-      <div class="qg">
-        <div class="ql">Was drückt am meisten – was muss zuerst gelöst werden?</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'urgentFirst','budget')">📋 Budget / Jahresplanung</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','forecast')">🔄 Forecast / Hochrechnung</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','people')">👥 Personalkosten-Planung</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','reporting')">📊 Reporting & Dashboards</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','consolidation')">🏢 Konsolidierung</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','data')">🔌 Datenintegration / Vorsysteme</button>
-          <button class="chip" onclick="pick(this,'urgentFirst','cs')">📞 Customer Service Steuerung</button>
-        </div>
-      </div>
-
-      <div class="qg">
-        <div class="ql">Was ist bei der Entscheidung am wichtigsten?</div>
-        <div class="qs">Reihenfolge gibt Hinweis auf Argumentation – bitte das wichtigste zuerst</div>
-        <div class="chips" id="prio-chips">
-          <button class="chip" data-prio="price" onclick="togglePrio(this)">💰 Preis / TCO</button>
-          <button class="chip" data-prio="speed" onclick="togglePrio(this)">⚡ Implementierungsgeschwindigkeit</button>
-          <button class="chip" data-prio="functionality" onclick="togglePrio(this)">🔧 Funktionsumfang</button>
-          <button class="chip" data-prio="usability" onclick="togglePrio(this)">🖥️ Usability / UX</button>
-          <button class="chip" data-prio="performance" onclick="togglePrio(this)">🚀 Performance & Skalierbarkeit</button>
-          <button class="chip" data-prio="support" onclick="togglePrio(this)">🤝 Support & Partnerschaft</button>
-          <button class="chip" data-prio="references" onclick="togglePrio(this)">⭐ Referenzen / Branchenerfahrung</button>
-          <button class="chip" data-prio="integration" onclick="togglePrio(this)">🔗 Integration in bestehende Systemlandschaft</button>
-        </div>
-        <div id="prio-order" style="display:none;margin-top:.5rem;font-size:11px;color:#0F6E56;background:#e6f4f0;padding:.4rem .7rem;border-radius:6px"></div>
-      </div>
-
-      <div class="qg">
-        <div class="ql">Gibt es ein Budget-Rahmen?</div>
-        <div class="chips">
-          <button class="chip" onclick="pick(this,'budget_range','lt50')">unter € 50.000</button>
-          <button class="chip" onclick="pick(this,'budget_range','50-150')">€ 50.000 – 150.000</button>
-          <button class="chip" onclick="pick(this,'budget_range','150-300')">€ 150.000 – 300.000</button>
-          <button class="chip" onclick="pick(this,'budget_range','gt300')">über € 300.000</button>
-          <button class="chip" onclick="pick(this,'budget_range','none')">Kein Budget definiert</button>
-          <button class="chip" onclick="pick(this,'budget_range','open')">Noch offen / vertraulich</button>
-        </div>
-      </div>
-
-      <div class="nav"><button class="btn" onclick="back()">← Zurück</button><button class="btn btnp" onclick="next()">Weiter →</button></div>
     </div>
-
-    <!-- ── STEP 4: User & Technik ── -->
-    <div class="step" id="s4">
-      <div class="sh">User-Struktur & Rahmenbedingungen</div>
-      <div class="ss">Wer arbeitet mit der Lösung – und welche technischen Constraints gibt es?</div>
-
-      <div class="qg"><div class="ql">Wie arbeiten Planer heute bevorzugt?</div><div class="chips">
-        <button class="chip" onclick="pick(this,'excelAffinity','high')">Stark Excel-geprägt – wollen Excel behalten</button>
-        <button class="chip" onclick="pick(this,'excelAffinity','medium')">Gemischt – Excel ok, Web-UI auch akzeptiert</button>
-        <button class="chip" onclick="pick(this,'excelAffinity','low')">Web-first – moderne Oberfläche bevorzugt</button>
-      </div></div>
-
-      <div class="qg"><div class="ql">Freigabe- und Genehmigungsprozesse</div><div class="chips">
-        <button class="chip" onclick="pick(this,'workflowComplexity','low')">Einfach – 1-2 Ebenen</button>
-        <button class="chip" onclick="pick(this,'workflowComplexity','medium')">Mittel – mehrere Abteilungen</button>
-        <button class="chip" onclick="pick(this,'workflowComplexity','high')">Komplex – viele Hierarchieebenen</button>
-        <button class="chip" onclick="pick(this,'workflowComplexity','open')">Noch offen</button>
-      </div></div>
-
-      <div class="qg"><div class="ql">Deployment-Präferenz</div><div class="chips">
-        <button class="chip" onclick="pick(this,'deployment','cloud')">Cloud / SaaS</button>
-        <button class="chip" onclick="pick(this,'deployment','onprem')">On-Premise erforderlich</button>
-        <button class="chip" onclick="pick(this,'deployment','hybrid')">Hybrid möglich</button>
-        <button class="chip" onclick="pick(this,'deployment','nopref')">Keine Präferenz</button>
-        <button class="chip" onclick="pick(this,'deployment','open')">Noch offen</button>
-      </div></div>
-
-      <div class="qg"><div class="ql">IT-Beteiligung im Entscheidungsprozess</div><div class="chips">
-        <button class="chip" onclick="pick(this,'itInvolvement','low')">Minimal – Finance entscheidet</button>
-        <button class="chip" onclick="pick(this,'itInvolvement','medium')">Moderat – IT gibt Freigabe</button>
-        <button class="chip" onclick="pick(this,'itInvolvement','high')">Hoch – IT treibt die Entscheidung</button>
-        <button class="chip" onclick="pick(this,'itInvolvement','open')">Noch offen</button>
-      </div></div>
-
-      <div class="qg"><div class="ql">Wer arbeitet am Ende mit der Lösung?</div>
-        <div class="ng">
-          <div class="nc"><div class="nt">Architekten / Admins</div><div class="nd">Bauen und pflegen Datenmodelle</div><input type="number" min="0" max="50" value="1" oninput="state.admins=+this.value"></div>
-          <div class="nc"><div class="nt">Power-User / Planer</div><div class="nd">Plandaten, Szenarien</div><input type="number" min="0" max="500" value="5" oninput="state.planners=+this.value"></div>
-          <div class="nc"><div class="nt">Analysten / Report-Builder</div><div class="nd">Auswertungen & Dashboards</div><input type="number" min="0" max="100" value="3" oninput="state.analysts=+this.value"></div>
-          <div class="nc"><div class="nt">Viewer / Consumer</div><div class="nd">Lesen Reports – kein Input</div><input type="number" min="0" max="1000" value="20" oninput="state.viewers=+this.value"></div>
-        </div>
-      </div>
-
-      <div class="nav"><button class="btn" onclick="back()">← Zurück</button><button class="btn btnp" onclick="next()">Auswerten →</button></div>
-    </div>
-
-    <!-- ── STEP 5: Results ── -->
-    <div class="step" id="s5">
-      <div id="loading" class="loading"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="lt">Anforderungen werden analysiert…</div></div>
-      <div id="results" style="display:none"></div>
-    </div>
-
-    <!-- ── STEP 6: Aufwandsschätzung ── -->
-    <div class="step" id="s6">
-      <div id="effort-content"></div>
-    </div>
-
   </div>
-  <div class="footer">better decisions group · bdg · Sales Qualification Tool · v5.1</div>
+
+  <!-- SCOPE -->
+  <div class="card">
+    <div class="card-title">🎯 Was wird gesucht?</div>
+    <div class="ql">Planungsbereiche (Mehrfachauswahl)</div>
+    <div class="scope-grid">
+      <button class="scope-btn on" onclick="toggleScope(this,'finance')">
+        <span class="si">💰</span>
+        <span class="sn">Finance / FP&A</span>
+        <span class="sd">GuV, Bilanz, Cash Flow, Forecast</span>
+      </button>
+      <button class="scope-btn" onclick="toggleScope(this,'people')">
+        <span class="si">👥</span>
+        <span class="sn">People / HR</span>
+        <span class="sd">Personalkosten, FTE, Headcount</span>
+      </button>
+      <button class="scope-btn" onclick="toggleScope(this,'cs')">
+        <span class="si">📞</span>
+        <span class="sn">CS|Control</span>
+        <span class="sd">Kapazität, KPIs, Cost-to-Serve</span>
+      </button>
+      <button class="scope-btn" onclick="toggleScope(this,'other')">
+        <span class="si">📊</span>
+        <span class="sn">Sonstiges</span>
+        <span class="sd">Reporting, Dashboards, BI</span>
+      </button>
+    </div>
+    <div class="field full" style="margin-top:10px">
+      <label>Was genau wird gesucht / was wurde gesagt?</label>
+      <textarea id="scope_notes" placeholder="z.B. &quot;wir wollen endlich aus Excel raus&quot;, &quot;CFO will monatliches Reporting automatisieren&quot;..."></textarea>
+    </div>
+  </div>
+
+  <!-- PAIN POINTS -->
+  <div class="card">
+    <div class="card-title">🔥 Pain Points & Ausgangslage</div>
+    <div class="ql" style="margin-bottom:.5rem">Was drückt am meisten? (alles anklicken was erwähnt wurde)</div>
+    <div class="pain-grid">
+      <label class="pain-item"><span class="pi">⏰</span><span class="pt">Zu viel Zeit für Datensammlung & manuelle Planungsrunden</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">❌</span><span class="pt">Fehleranfällige Excel-Prozesse – Versionschaos</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">👁️</span><span class="pt">Keine Echtzeit-Transparenz über KPIs / Status</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">🔗</span><span class="pt">Finance und HR sprechen nicht dieselbe Sprache</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">🔮</span><span class="pt">Forecast-Qualität unzureichend – keine Szenarien möglich</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">💰</span><span class="pt">Cost-to-Serve je Client / Kampagne nicht transparent</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">👥</span><span class="pt">Kapazitätsplanung für Agents schwierig (Peaks / Unterbesetzung)</span><input type="checkbox" onchange="updatePains()"></label>
+      <label class="pain-item"><span class="pi">🔌</span><span class="pt">Datenintegration aus Vorsystemen sehr aufwändig</span><input type="checkbox" onchange="updatePains()"></label>
+    </div>
+    <div class="field full" style="margin-top:10px">
+      <label>Auslöser – warum suchen sie jetzt?</label>
+      <textarea id="trigger" placeholder="z.B. Wachstum, Systemablösung, neuer CFO, Audit-Vorbereitung..."></textarea>
+    </div>
+  </div>
+
+  <!-- PLANUNG HEUTE -->
+  <div class="card">
+    <div class="card-title">📋 Planung heute</div>
+    <div class="row">
+      <div class="field">
+        <label>Aktuelles Tool</label>
+        <select id="current_tool">
+          <option value="">– bitte wählen –</option>
+          <option value="excel">Nur Excel</option>
+          <option value="excel_legacy">Excel + Legacy-System</option>
+          <option value="dedicated">Dediziertes Planungstool</option>
+          <option value="mix">Mix verschiedener Tools</option>
+          <option value="unknown">Noch unklar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Wann soll's live gehen?</label>
+        <select id="go_live">
+          <option value="">– bitte wählen –</option>
+          <option value="lt3m">So schnell wie möglich (&lt; 3 Monate)</option>
+          <option value="3-6m">3 – 6 Monate</option>
+          <option value="6-12m">6 – 12 Monate</option>
+          <option value="gt12m">Über 12 Monate</option>
+          <option value="open">Noch offen</option>
+        </select>
+      </div>
+    </div>
+    <div class="field full">
+      <label>Vorsysteme (ERP, HR, BI – was ist im Einsatz?)</label>
+      <input type="text" id="source_systems" placeholder="z.B. SAP ECC, Personio, Excel, Power BI...">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Wie viele Personen planen?</label>
+        <input type="number" id="planners" min="1" max="200" placeholder="Anzahl" style="padding:9px 12px">
+      </div>
+      <div class="field">
+        <label>Budget-Rahmen</label>
+        <select id="budget_range">
+          <option value="">– bitte wählen –</option>
+          <option value="lt50">unter € 50.000</option>
+          <option value="50-150">€ 50.000 – 150.000</option>
+          <option value="150-300">€ 150.000 – 300.000</option>
+          <option value="gt300">über € 300.000</option>
+          <option value="none">Kein Budget definiert</option>
+          <option value="open">Noch offen / vertraulich</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTSCHEIDUNG -->
+  <div class="card">
+    <div class="card-title">🤝 Entscheidungsprozess</div>
+    <div class="ql" style="margin-bottom:.5rem">Was ist bei der Entscheidung wichtig? (Reihenfolge = Priorität)</div>
+    <div class="chips" id="prio-chips">
+      <button class="chip" data-prio="price" onclick="togglePrio(this)">💰 Preis / TCO</button>
+      <button class="chip" data-prio="speed" onclick="togglePrio(this)">⚡ Schnelligkeit</button>
+      <button class="chip" data-prio="functionality" onclick="togglePrio(this)">🔧 Funktionsumfang</button>
+      <button class="chip" data-prio="usability" onclick="togglePrio(this)">🖥️ Usability</button>
+      <button class="chip" data-prio="references" onclick="togglePrio(this)">⭐ Referenzen</button>
+      <button class="chip" data-prio="support" onclick="togglePrio(this)">🤝 Support & Partner</button>
+      <button class="chip" data-prio="integration" onclick="togglePrio(this)">🔗 Integration</button>
+    </div>
+    <div id="prio-order" style="display:none;margin-top:.5rem;font-size:11px;color:#0F6E56;background:#e6f4f0;padding:.4rem .7rem;border-radius:6px"></div>
+
+    <div class="field full" style="margin-top:12px">
+      <label>Wie läuft der Entscheidungsprozess ab?</label>
+      <textarea id="decision_process" placeholder="z.B. Champion (Ilja) bereitet Entscheidungsvorlage vor, CFO entscheidet. IT muss Freigabe geben..."></textarea>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="ql">Gesamteindruck / Kaufbereitschaft</div>
+      <div class="stars" id="stars">
+        <button class="star" onclick="setStar(1)">★</button>
+        <button class="star" onclick="setStar(2)">★</button>
+        <button class="star" onclick="setStar(3)">★</button>
+        <button class="star" onclick="setStar(4)">★</button>
+        <button class="star" onclick="setStar(5)">★</button>
+      </div>
+      <div style="font-size:11px;color:#bbb;margin-top:.3rem">1 = sehr früh · 5 = sehr kaufbereit</div>
+    </div>
+  </div>
+
+  <!-- NOTIZEN -->
+  <div class="card">
+    <div class="card-title">📝 Notizen & nächste Schritte</div>
+    <div class="field full">
+      <label>Freie Notizen aus dem Call</label>
+      <textarea id="notes" placeholder="Was wurde noch gesagt? Besonderheiten, Zitate, interessante Details..." style="min-height:100px"></textarea>
+    </div>
+    <div class="field full" style="margin-top:8px">
+      <label>Sonstiges / Weiteres</label>
+      <textarea id="misc" placeholder="Alles was sonst noch relevant sein könnte – Referenzen die erwähnt wurden, Wettbewerber, interne Dynamiken..." style="min-height:72px"></textarea>
+    </div>
+    <div class="next-call">
+      <label>📅 Nächster Schritt / Follow-up</label>
+      <input type="text" id="next_step" placeholder="z.B. Demo vereinbaren, Angebot schicken, Champion-Kit senden...">
+    </div>
+  </div>
+
+  <!-- SPEICHERN -->
+  <div class="save-section">
+    <button class="save-btn" id="save-btn" onclick="saveToNotion()">
+      <span>💾</span> In Notion speichern
+    </button>
+    <div class="save-status" id="save-status"></div>
+    <div class="hint">Wird in eurer bdg Notion-Datenbank gespeichert · Jederzeit erweiterbar</div>
+  </div>
+
+  <div class="footer">better decisions group · bdg · Discovery Call Tool</div>
 </div>
 
 <script>
-var state={
-  industry:'',employees:'',entities:'',currentTool:'',
-  scopeFocus:[],
-  budget:{status:'',weeks:4,iter:3,people:5,dir:''},
-  forecast:{status:'',freq:'',hoursPerCycle:4,people:3,method:''},
-  mfp:{status:'',horizon:'',link:'',scenarios:''},
-  strategy:{status:''},
-  people:{planners:3,freq:''},
-  cs:{agents:100},
-  peoplePain:'',csPains:[],csControl:'',
-  scope:[],planningFocus:'',pains:[],
-  sourceSystems:[],otherInputTool:'',biReplacement:'',
-  goLive:'',rollout:'',urgentFirst:'',priorities:[],budget_range:'',
-  excelAffinity:'',workflowComplexity:'',deployment:'',itInvolvement:'',
-  admins:1,planners:5,analysts:3,viewers:20
-};
-var cur=1,tot=6;
+var selectedScope=['finance'];
+var selectedPains=[];
+var selectedPrios=[];
+var starRating=0;
 
-var IR={
-  energy:{rate:43,label:'Energy & Utilities'},finance:{rate:49,label:'Finance & Banking'},
-  manufacturing:{rate:39,label:'Manufacturing'},retail:{rate:37,label:'Retail & Consumer Goods'},
-  services:{rate:33,label:'Services / BPO'},housing:{rate:38,label:'Housing & Real Estate'},
-  it:{rate:44,label:'IT & Telecom'},automotive:{rate:46,label:'Automotive'},other:{rate:40,label:'Sonstige'}
-};
-function ri(){return IR[state.industry]||IR.other;}
-
-// ── Industry-spezifische Label-Anpassungen ──
-var IL={
-  energy:{
-    guv:'Ergebnis- & GuV-Planung',
-    bilanz:'Bilanz & Liquiditätsplanung',
-    vertrieb:'Absatz- & Erlösplanung',
-    investitionen:'Investitions- & Netzplanung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Produkt / Tarif / Sparte',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Schichtplanung / Personaleinsatz',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Hochrechnung / Forecast',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People-Schwerpunkte'
-  },
-  services:{
-    guv:'GuV- & Ergebnisplanung',
-    bilanz:'Bilanz & Cash Flow',
-    vertrieb:'Auftrags- & Umsatzplanung',
-    investitionen:'Investitionsplanung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Auftraggeber / Kampagne',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount je Client / Kampagne',
-    recruiting:'Recruiting-Planung',
-    capacity:'Agenten-Einsatzplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Rolling Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People-Schwerpunkte'
-  },
-  manufacturing:{
-    guv:'GuV / P&L-Planung',
-    bilanz:'Bilanz & Cash Flow',
-    vertrieb:'Absatz- & Produktionsplanung',
-    investitionen:'Investitions- & Capex-Planung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Produkt / Werk / Kostenträger',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Produktions- & Kapazitätsplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Produktions-Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People & Kapazität'
-  },
-  retail:{
-    guv:'GuV / P&L-Planung',
-    bilanz:'Bilanz & Liquiditätsplanung',
-    vertrieb:'Absatz- & Umsatzplanung',
-    investitionen:'Investitionsplanung',
-    konsolidierung:'Filial- / Konzernkonsolidierung',
-    profitability:'DB je Filiale / Kanal / Kategorie',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Personaleinsatz & Schichtplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Sales Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People-Schwerpunkte'
-  },
-  finance:{
-    guv:'GuV / P&L-Planung',
-    bilanz:'Bilanz & Liquiditätsplanung',
-    vertrieb:'Ertrags- & Volumenplanung',
-    investitionen:'Investitions- & Kapitalplanung',
-    konsolidierung:'Konzern- / Segmentkonsolidierung',
-    profitability:'DB je Produkt / Segment / Region',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Kapazitätsplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Rolling Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People-Schwerpunkte'
-  },
-  housing:{
-    guv:'GuV / Bewirtschaftungsergebnis',
-    bilanz:'Bilanz & Cash Flow',
-    vertrieb:'Miet- & Erlösplanung',
-    investitionen:'Investitions- & Instandhaltungsplanung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Objekt / Portfolio',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Kapazitäts- & Ressourcenplanung',
-    budget_label:'Wirtschaftsplan / Jahresplanung',
-    forecast_label:'Hochrechnung / Forecast',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People-Schwerpunkte'
-  },
-  automotive:{
-    guv:'GuV / P&L-Planung',
-    bilanz:'Bilanz & Cash Flow',
-    vertrieb:'Absatz- & Stückzahlplanung',
-    investitionen:'Capex- & Entwicklungskostenplanung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Modell / Region / Kanal',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung',
-    recruiting:'Recruiting-Planung',
-    capacity:'Produktions- & Kapazitätsplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'Produktions-Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People & Kapazität'
-  },
-  it:{
-    guv:'GuV / P&L-Planung',
-    bilanz:'Bilanz & Cash Flow',
-    vertrieb:'ARR / MRR & Umsatzplanung',
-    investitionen:'Capex- & Produktinvestitionsplanung',
-    konsolidierung:'Konzernkonsolidierung',
-    profitability:'DB je Produkt / Kunde / Segment',
-    personal:'Personalkosten & FTE',
-    headcount:'Headcount-Planung (Hiring Plan)',
-    recruiting:'Recruiting & Hiring-Planung',
-    capacity:'Ressourcen- & Kapazitätsplanung',
-    budget_label:'Budget / Jahresplanung',
-    forecast_label:'ARR-Forecast / Hochrechnung',
-    mfp_label:'Mittelfristplanung (3–5 Jahre)',
-    people_title:'People & Hiring'
-  }
-};
-
-function updateIndustryLabels(){
-  var labels=IL[state.industry];
-  if(!labels)return;
-  // Finance scope chips
-  var fc=document.getElementById('finance-scope-chips');
-  if(fc){fc.querySelectorAll('[data-label]').forEach(function(btn){
-    if(labels[btn.dataset.label])btn.textContent=labels[btn.dataset.label];
-  });}
-  // People scope chips
-  var pc=document.getElementById('people-scope-chips');
-  if(pc){pc.querySelectorAll('[data-label]').forEach(function(btn){
-    if(labels[btn.dataset.label])btn.textContent=labels[btn.dataset.label];
-  });}
-  // People title
-  var pt=document.getElementById('people-scope-title');
-  if(pt&&labels.people_title)pt.textContent=labels.people_title+' (Mehrfachauswahl)';
-  // Planning type card labels
-  var bl=document.querySelector('[data-ptlabel="budget"]');
-  if(bl&&labels.budget_label)bl.textContent=labels.budget_label;
-  var fl=document.querySelector('[data-ptlabel="forecast"]');
-  if(fl&&labels.forecast_label)fl.textContent=labels.forecast_label;
-  var ml=document.querySelector('[data-ptlabel="mfp"]');
-  if(ml&&labels.mfp_label)ml.textContent=labels.mfp_label;
+function toggleScope(btn,key){
+  btn.classList.toggle('on');
+  var i=selectedScope.indexOf(key);
+  if(i>-1)selectedScope.splice(i,1);else selectedScope.push(key);
 }
 
-// ── Scope toggle ──
-function toggleScope(key,el){
-  el.classList.toggle('on');
-  var i=state.scopeFocus.indexOf(key);
-  if(i>-1)state.scopeFocus.splice(i,1);else state.scopeFocus.push(key);
-  updateScopeSections();
-}
-function updateScopeSections(){
-  ['finance','people','energy','cs'].forEach(function(k){
-    var s=document.getElementById('sec-'+k);
-    if(s){if(state.scopeFocus.indexOf(k)>-1)s.classList.add('visible');else s.classList.remove('visible');}
-  });
-  var hrSec=document.getElementById('hr-systems-section');
-  if(hrSec){hrSec.style.display=state.scopeFocus.indexOf('people')>-1?'block':'none';}
-
-  // Energy-Scope-Karte nur für relevante Branchen zeigen
-  var energyIndustries=['energy','manufacturing','housing','other'];
-  var energyCard=document.getElementById('scope-card-energy');
-  if(energyCard){
-    var show=energyIndustries.indexOf(state.industry)>-1||state.industry==='';
-    energyCard.style.display=show?'':'none';
-    // Wenn Branche wechselt und Energy nicht mehr relevant: aus Scope entfernen
-    if(!show&&state.scopeFocus.indexOf('energy')>-1){
-      state.scopeFocus.splice(state.scopeFocus.indexOf('energy'),1);
-      energyCard.classList.remove('on');
-      var sec=document.getElementById('sec-energy');
-      if(sec)sec.classList.remove('visible');
+function updatePains(){
+  selectedPains=[];
+  document.querySelectorAll('.pain-item input[type=checkbox]').forEach(function(cb,i){
+    if(cb.checked){
+      cb.closest('.pain-item').classList.add('on');
+      selectedPains.push(cb.closest('.pain-item').querySelector('.pt').textContent.trim());
+    }else{
+      cb.closest('.pain-item').classList.remove('on');
     }
-  }
+  });
 }
 
-// ── PT status ──
-function setPT(e,type,val){
-  e.stopPropagation();
-  var btns=e.target.closest('.pt-toggle').querySelectorAll('.pt-btn');
-  btns.forEach(function(b){b.className='pt-btn';});
-  var cls=val==='tool'||val==='yes'?'ay':val==='excel'||val==='wanted'?'ae':val==='no'?'an':'ao';
-  e.target.classList.add(cls);
-  state[type].status=val;
-  var det=document.getElementById('det-'+type);
-  if(det){if(val==='tool'||val==='excel')det.classList.add('open');else det.classList.remove('open');}
-}
-function setPT2(type,val){state[type]={status:val};}
-function pickPT(el,type,field,val){
-  el.closest('.chips').querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});
-  el.classList.add('on');state[type][field]=val;
-}
-
-// ── General ──
-function pick(el,key,val,multi){
-  if(multi){var i=state[key].indexOf(val);if(i>-1){state[key].splice(i,1);el.classList.remove('on');}else{state[key].push(val);el.classList.add('on');}}
-  else{el.closest('.chips').querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});state[key]=val;el.classList.add('on');}
-  if(key==='industry'){updateIndustryLabels();updateScopeSections();}
-}
-
+var prioLabels={price:'Preis/TCO',speed:'Schnelligkeit',functionality:'Funktionsumfang',usability:'Usability',references:'Referenzen',support:'Support',integration:'Integration'};
 function togglePrio(el){
   var key=el.dataset.prio;
-  var i=state.priorities.indexOf(key);
-  if(i>-1){
-    state.priorities.splice(i,1);
-    el.classList.remove('on');
-  }else{
-    state.priorities.push(key);
-    el.classList.add('on');
-  }
-  // Show ranking order
-  var labels={'price':'Preis/TCO','speed':'Geschwindigkeit','functionality':'Funktionsumfang','usability':'Usability','performance':'Performance','support':'Support','references':'Referenzen','integration':'Integration'};
+  var i=selectedPrios.indexOf(key);
+  if(i>-1){selectedPrios.splice(i,1);el.classList.remove('on');}
+  else{selectedPrios.push(key);el.classList.add('on');}
   var od=document.getElementById('prio-order');
-  if(state.priorities.length>0){
+  if(selectedPrios.length>0){
     od.style.display='block';
-    od.textContent='Priorität: '+state.priorities.map(function(p,i){return (i+1)+'. '+labels[p];}).join(' · ');
-  }else{od.style.display='none';}
+    od.textContent='Priorität: '+selectedPrios.map(function(p,i){return(i+1)+'. '+prioLabels[p];}).join(' · ');
+  }else od.style.display='none';
 }
 
-function toggleOtherInput(el){
-  var active=el.classList.contains('on');
-  if(active){el.classList.remove('on');var i=state.sourceSystems.indexOf('other_input');if(i>-1)state.sourceSystems.splice(i,1);state.otherInputTool='';document.getElementById('other-input-wrap').style.display='none';document.getElementById('other-input-field').value='';}
-  else{el.classList.add('on');state.sourceSystems.push('other_input');document.getElementById('other-input-wrap').style.display='block';document.getElementById('other-input-field').focus();}
-}
-
-function goTo(n){
-  document.getElementById('s'+cur).classList.remove('active');cur=n;
-  document.getElementById('s'+cur).classList.add('active');
-  document.getElementById('pf').style.width=((cur-1)/(tot-1)*100)+'%';
-  document.getElementById('si').textContent='Schritt '+cur+' von '+tot;
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function next(){if(cur===4){goTo(5);compute();return;}if(cur<tot)goTo(cur+1);}
-function goToEffort(){goTo(6);renderEffortPage();}
-function back(){if(cur>1)goTo(cur-1);}
-
-function restart(){
-  location.reload();
-}
-
-// ── Value calc (scope-aware) ──
-function calcValue(){
-  var r=ri();
-  var isXL=state.currentTool==='excel'||state.currentTool==='excel_legacy';
-  var isLegacy=state.currentTool==='excel_legacy'||state.currentTool==='dedicated';
-
-  // Fully loaded hourly rate: Gehalt + 35% AG-Kosten + 10% Overhead
-  var hr=Math.round(r.rate*1.45);
-
-  // Coordination factor: jede Planungsstunde zieht ~30% Koordinationszeit nach sich
-  var coordFactor=1.3;
-
-  var baseH=0, fH=0;
-
-  if(state.scopeFocus.indexOf('finance')>-1){
-    if(state.budget.status==='tool'||state.budget.status==='excel')
-      baseH+=(+state.budget.people||5)*(+state.budget.weeks||4)*8;
-    var fCycles={monthly:12,quarterly:4,adhoc:2}[state.forecast.freq]||6;
-    if(state.forecast.status==='tool'||state.forecast.status==='excel'){
-      fH=(+state.forecast.people||3)*(+state.forecast.hoursPerCycle||4)*fCycles;
-      baseH+=fH;
-    }
-    if(state.mfp.status==='tool'||state.mfp.status==='excel')
-      baseH+=(+state.planners||5)*40;
-  }
-  if(state.scopeFocus.indexOf('people')>-1){
-    var pCycles={annual:1,semi:2,rolling:12}[state.people.freq]||2;
-    baseH+=(+state.people.planners||3)*60*pCycles;
-  }
-  if(state.scopeFocus.indexOf('cs')>-1)
-    baseH+=(+state.cs.agents/30)*25;
-
-  baseH+=Math.max(0,+state.analysts||3)*40;
-
-  var totalH=Math.round(baseH*coordFactor);
-
-  // Savings: 55% of total hours (Hackett Group / KPMG CPM benchmark)
-  var savedH=Math.round(totalH*0.55);
-
-  // Error & rework: 25% Excel, 10% other (EuSpRIG)
-  var errRate=isXL?0.25:0.10;
-  var errV=Math.round(totalH*hr*errRate);
-
-  // Direct time saving
-  var dirV=Math.round(savedH*hr);
-
-  // Faster decisions / forecast quality premium (10%)
-  var stratV=Math.round(dirV*0.10);
-
-  // Audit & Jahresabschluss-Beschleunigung
-  // Durchschnittlich 3-5 Tage schnellerer Close × Finance-Team
-  var finPeople=Math.max(2,+state.planners||5);
-  var auditV=Math.round(finPeople*4*8*hr*0.5); // 4 Tage × 50% Effizienzgewinn
-
-  // IT-Konsolidierung: bestehende Tools & Lizenzen die abgelöst werden
-  // Annahme: mind. 1 Legacy-Tool oder Excel-Infrastruktur kostet €8k–25k/Jahr
-  var itV=isXL?12000:isLegacy?20000:8000;
-
-  // Working Capital Optimierung durch besseren CF-Forecast
-  // Konservativ: 1% des Jahresumsatzes (Mittelstand ~€20M → €200k × 1% = €2k freigegeben)
-  // Wir nehmen Zinsvorteil: €50k–200k gebundenes Kapital × 4% Zinssatz
-  var wcV={gt2000:8000,'500-2000':5000,'100-500':3000,lt100:1500}[state.employees]||3000;
-
-  var total=dirV+errV+stratV+auditV+itV+wcV;
-
-  // Minimum per scope area
-  var scopeCount=Math.max(1,state.scopeFocus.length);
-  var minVal=scopeCount*28000;
-  total=Math.max(total,minVal);
-  dirV=Math.max(dirV,Math.round(minVal*0.5));
-
-  var days=Math.round(savedH/8);
-  var dpp=Math.round(days/Math.max(1,(+state.planners||5)+(+state.analysts||3)));
-  var tcoi=Math.round(total*3*1.15);
-  var impl={gt2000:75000,'500-2000':55000,'100-500':38000,lt100:28000}[state.employees]||38000;
-  var pb=Math.round((impl/Math.max(1,total))*12);
-  var fSaved=fH>0?Math.round(fH*coordFactor*0.55*hr):0;
-
-  return{hr,savedH,dirV,errV,stratV,auditV,itV,wcV,total,days,dpp,tcoi,pb,impl,isXL,r,fSaved,totalH};
-}
-
-// ── AI ──
-async function compute(){
-  document.getElementById('loading').style.display='block';
-  document.getElementById('results').style.display='none';
-  try{renderResults(await getAI());}
-  catch(e){console.error(e);renderResults(fallback());}
-  document.getElementById('loading').style.display='none';
-  document.getElementById('results').style.display='block';
-}
-
-async function getAI(){
-  var r=ri();
-  var resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:buildPrompt(r)}]})
-  });
-  if(!resp.ok)throw new Error('API '+resp.status);
-  var d=await resp.json();
-  var txt=d.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
-  // Robusteres JSON-Parsing: extrahiere das erste vollständige JSON-Objekt
-  var cleaned=txt.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
-  // Finde das erste { und das letzte } für das JSON-Objekt
-  var start=cleaned.indexOf('{');
-  var end=cleaned.lastIndexOf('}');
-  if(start===-1||end===-1||end<=start)throw new Error('Kein JSON gefunden');
-  var jsonStr=cleaned.substring(start,end+1);
-  try{
-    return JSON.parse(jsonStr);
-  }catch(e){
-    // Versuche ungültige Steuerzeichen zu bereinigen
-    var sanitized=jsonStr
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g,' ')
-      .replace(/\n/g,'\\n')
-      .replace(/\r/g,'\\r')
-      .replace(/\t/g,'\\t');
-    // Zweiter Versuch nach Bereinigung
-    try{return JSON.parse(sanitized);}
-    catch(e2){throw new Error('JSON Parse Fehler: '+e2.message);}
-  }
-}
-
-function buildPrompt(r){
-  var sf=state.scopeFocus;
-  var pts='';
-  if(sf.indexOf('finance')>-1)pts+='Budget: '+state.budget.status+' ('+state.budget.weeks+'Wo, '+state.budget.iter+'x, '+state.budget.people+'P, '+state.budget.dir+') | Forecast: '+state.forecast.status+' ('+state.forecast.freq+', '+state.forecast.hoursPerCycle+'h/P, '+state.forecast.people+'P, '+state.forecast.method+') | MFP: '+state.mfp.status+' ('+state.mfp.horizon+', link:'+state.mfp.link+', scenarios:'+state.mfp.scenarios+') | Strategie: '+(state.strategy.status||'nicht abgefragt')+'\n';
-  if(sf.indexOf('people')>-1)pts+='People: '+state.people.planners+' Planer, Frequenz: '+state.people.freq+', Pain: '+state.peoplePain+'\n';
-  if(sf.indexOf('cs')>-1)pts+='CS|Control: '+state.cs.agents+' Agents, Pains: '+state.csPains.join(',')+'\n';
-  if(sf.indexOf('energy')>-1)pts+='Energy scope: '+state.scope.filter(function(s){return['energie','mengen','netz','cx'].indexOf(s)>-1;}).join(',')+'\n';
-
-  return 'Du bist Senior Sales Analyst bei bdg. WICHTIG: Antworte AUSSCHLIESSLICH mit einem einzigen validen JSON-Objekt. Keine Erklärungen, kein Markdown, keine Zeilenumbrüche innerhalb von String-Werten. Alle Strings müssen auf einer Zeile bleiben.\n\nBranche: '+state.industry+' | €'+r.rate+'/h | MA: '+state.employees+' | Einheiten: '+state.entities+' | Tool: '+state.currentTool+'\nScope: '+sf.join(', ')+'\n'+pts+'\nDetails: '+state.scope.join(', ')+' | Fokus: '+state.planningFocus+' | Pains: '+state.pains.join(', ')+'\nVorsysteme: '+state.sourceSystems.join(', ')+(state.otherInputTool?' +'+state.otherInputTool:'')+'\nBI: '+state.biReplacement+' | Excel: '+state.excelAffinity+' | Workflow: '+state.workflowComplexity+' | Deploy: '+state.deployment+'\nUser: '+state.admins+' Admins, '+state.planners+' Planer, '+state.analysts+' Analysten, '+state.viewers+' Viewer\nTIMING: Go-Live='+state.goLive+' | Rollout='+state.rollout+' | DringsndstesProblem='+state.urgentFirst+'\nENTSCHEIDUNGSKRITERIEN (Reihenfolge=Prioritaet): '+state.priorities.join(' > ')+'\nBUDGET: '+state.budget_range+'\n\nPLATTFORM: Jedox=FP&A/Excel/Cloud/Mittelstand/People/schnell | BOARD=BI+Planning/Ops/viele Einheiten/OnPrem/Funktionsumfang\nWenn Geschwindigkeit Prio1 und GoLive<6M: Jedox-Vorteil. Wenn Preis wichtig und Budget<150k: Jedox bevorzugen. Wenn Funktionsumfang Prio1: BOARD genauer pruefen.\n\nMODULE:\nbdgONE Finance CORE: GuV/Profitcenter, Bilanz, indirekter Cashflow. SUBMODULE: OPEX-Planung, CAPEX/Investitionen (inkl. AFA), Darlehensplanung, Allocation/COA, Rueckstellungsplanung\nbdgONE People CORE: Personalkosten & FTE, Headcount & Vacancy, Kostenstellenplanung. EXTENSIONS: Recruiting, Personaleinsatz/Schichtplanung, Source-System-Integration\nbdgONE Energy CORE: Tarif- & Preisplanung, Mengen/Lastprofile, Netzkosten. EXTENSION: CS|Control\nCS|Control CORE: Kapazitaetsplanung, KPI-Dashboards, Cost-to-Serve. EXTENSION: Finance-Bruecke\nKonsolidierung: Konzernkonsolidierung. Dashboards: Self-Service BI\nReferenzen: Burgenland Energie, Stadtwerke Guetersloh, 50Hertz, e-Regio, FOND OF, Weischer.JvB, KROMI Logistik, 1&1\n\n{"platform":"Jedox|BOARD|Beide geeignet","platform_confidence":0-100,"platform_reasoning":"2-3 Saetze ohne Sonderzeichen","recommended_areas":[{"area":"Name","priority":"hoch|mittel","core_modules":["Modul"],"submodules":[{"name":"Name","why":"1 Satz","priority":"empfohlen|optional"}],"area_note":"1 Satz"}],"top_value_driver":"1 Satz","phasing_recommendation":"1-2 Saetze zur empfohlenen Einfuehrungsreihenfolge basierend auf Urgency und Timing","jedox_pros":["Punkt 1","Punkt 2","Punkt 3"],"jedox_cons":["Punkt 1","Punkt 2"],"board_pros":["Punkt 1","Punkt 2","Punkt 3"],"board_cons":["Punkt 1","Punkt 2"],"planning_type_coverage":[{"type":"Budget / Jahresplanung","icon":"📋","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Rolling Forecast","icon":"🔄","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Mittelfristplanung","icon":"📈","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"People-Planung","icon":"👥","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"Energy-Planung","icon":"⚡","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"},{"type":"CS|Control","icon":"📞","status":"gut abgedeckt|machbar|Luecke|nicht relevant","note":"1 Satz"}],"best_references":["max 3"],"key_risk":"1 Satz","next_step":"1-2 Saetze"}';
-}
-
-function fallback(){
-  var sf=state.scopeFocus,bs=0;
-  if(state.biReplacement==='integrate'||state.biReplacement==='replace')bs+=25;
-  if(state.planningFocus==='bi_planning')bs+=20;
-  if(state.planningFocus==='ops_heavy'||state.planningFocus==='finance_ops')bs+=12;
-  if(state.workflowComplexity==='high')bs+=12;
-  if(state.entities==='gt15')bs+=15;else if(state.entities==='6-15')bs+=8;
-  if(state.employees==='gt2000')bs+=12;
-  if(state.deployment==='onprem')bs+=15;
-  if(state.excelAffinity==='high')bs-=20;
-  if(state.planningFocus==='finance_only')bs-=15;
-  var platform=bs>=25?'BOARD':bs<=-5?'Jedox':'Beide geeignet';
-
-  var areas=[];
-  if(sf.indexOf('finance')>-1){
-    var finSubs=[];
-    if(state.scope.indexOf('investitionen')>-1)finSubs.push({name:'CAPEX / Investitionsplanung',why:'Investitionsprojekte inkl. automatischer AFA-Berechnung und Buchwertentwicklung.',priority:'empfohlen'});
-    if(state.scope.indexOf('profitability')>-1)finSubs.push({name:'Allocation / COA',why:'Innerbetriebliche Leistungsverrechnung (bis 8 Zyklen) für Deckungsbeitragsrechnung.',priority:'empfohlen'});
-    finSubs.push({name:'OPEX-Planung',why:'Detaillierte Planung operativer Aufwände auf Segment-/Kostenstellenebene.',priority:'empfohlen'});
-    finSubs.push({name:'Darlehensplanung',why:'Zins- und Tilgungspläne mit automatischem Übertrag in Core-Module.',priority:'optional'});
-    finSubs.push({name:'Rückstellungsplanung',why:'Automatisierte Rückstellungsgenerierung aus operativen Segmenten.',priority:'optional'});
-    areas.push({area:'bdgONE Finance',priority:'hoch',core_modules:['GuV / Profitcenter-Planung','Bilanz','Indirekter Cashflow'],submodules:finSubs,area_note:'Vorkonfigurierte Finance Suite auf Jedox – eliminiert Excel-Chaos und bietet revisionssichere, integrierte Finanzplanung.'});
-    if(state.scope.indexOf('konsolidierung')>-1)areas.push({area:'Konsolidierung',priority:'hoch',core_modules:['Konzernkonsolidierung','Intercompany-Eliminierung','Segment-Reporting'],submodules:[],area_note:'Notwendig für mehrere rechtliche Einheiten – nahtlose Integration in bdgONE Finance.'});
-  }
-  if(sf.indexOf('people')>-1){
-    var peopleSubs=[];
-    if(state.scope.indexOf('recruiting')>-1||state.people.freq==='rolling')peopleSubs.push({name:'Recruiting-Planung',why:'Planung neuer Headcounts und Vakanzen mit Backfill-Logik.',priority:'empfohlen'});
-    if(state.scope.indexOf('capacity')>-1)peopleSubs.push({name:'Personaleinsatz / Schichtplanung',why:'Kapazitätsplanung auf Kampagnen- und Clientebene.',priority:'empfohlen'});
-    peopleSubs.push({name:'Source-System-Integration',why:'Direkte Anbindung an HR-System (Personio, SAP HCM, Workday) für automatischen Datentransfer.',priority:'optional'});
-    areas.push({area:'bdgONE People',priority:'hoch',core_modules:['Personalkosten & FTE','Headcount & Vacancy-Planung','Kostenstellenplanung','Elternzeit / Befristungen / Backfills'],submodules:peopleSubs,area_note:'Single Source of Truth für HR & Finance – Personalkosten fließen automatisch in die GuV-Planung.'});
-  }
-  if(sf.indexOf('energy')>-1){
-    areas.push({area:'bdgONE Energy',priority:'hoch',core_modules:['Tarif- & Preisplanung','Mengen- & Lastprofile','Netzkosten'],submodules:[{name:'CS|Control',why:'Kundenservice-Steuerung mit KPI-Dashboards als Energy-Extension.',priority:'empfohlen'}],area_note:'Branchenspezifische Module für Energieversorger und Stadtwerke.'});
-  }
-  if(sf.indexOf('cs')>-1){
-    areas.push({area:'CS|Control',priority:'hoch',core_modules:['Kapazitätsplanung je Campaign/Client','KPI-Dashboards (Calls, CSAT, Produktivität)','Cost-to-Serve je Client'],submodules:[{name:'Finance-Brücke / P&L-Integration',why:'Automatischer Transfer von CS-Kosten in die Finance-GuV für vollständige Deckungsbeitragsrechnung.',priority:'empfohlen'}],area_note:'Steuert Customer Service als Wertschöpfungstreiber – nicht als Kostenstelle.'});
-  }
-  if(areas.length===0)areas.push({area:'Dashboards & Analytics',priority:'mittel',core_modules:['Self-Service BI','Standard-Dashboards'],submodules:[],area_note:'Quick Win mit sofortigem Nutzen für alle Stakeholder.'});
-
-  var ptc=[
-    {type:'Budget / Jahresplanung',icon:'📋',status:sf.indexOf('finance')>-1?(state.budget.status==='no'?'nicht relevant':'gut abgedeckt'):'nicht relevant',note:'Jahresplanung ist der Kern beider Plattformen.'},
-    {type:'Rolling Forecast',icon:'🔄',status:sf.indexOf('finance')>-1?(state.forecast.status==='no'?'nicht relevant':'gut abgedeckt'):'nicht relevant',note:'Forecast-Automatisierung spart oft mehr als Planungsoptimierung.'},
-    {type:'Mittelfristplanung',icon:'📈',status:sf.indexOf('finance')>-1?(state.mfp.status==='no'?'nicht relevant':state.mfp.link==='no'?'machbar':'gut abgedeckt'):'nicht relevant',note:'Verknüpfung mit Jahresbudget ist der entscheidende Mehrwert.'},
-    {type:'People-Planung',icon:'👥',status:sf.indexOf('people')>-1?'gut abgedeckt':'nicht relevant',note:'bdgONE People ist das dedizierte Modul für Personalkosten und FTE.'},
-    {type:'Energy-Planung',icon:'⚡',status:sf.indexOf('energy')>-1?'gut abgedeckt':'nicht relevant',note:'bdgONE Energy mit Branchenmodulen für Tarife und Mengen.'},
-    {type:'CS|Control',icon:'📞',status:sf.indexOf('cs')>-1?'gut abgedeckt':'nicht relevant',note:'CS|Control steuert Customer Service als messbaren Wertbeitrag.'}
-  ];
-  var refs=state.industry==='energy'?['Burgenland Energie','Stadtwerke Gütersloh','e-Regio GmbH']:state.industry==='services'?['Weischer.JvB','Stadtwerke Gütersloh','KROMI Logistik']:['Weischer.JvB','KROMI Logistik','FOND OF'];
-  return{platform,platform_confidence:Math.min(85,60+Math.abs(bs)),platform_reasoning:'Basierend auf gewähltem Scope und technischen Angaben. Pre-Sales-Validierung empfohlen.',recommended_areas:areas,top_value_driver:'Automatisierung der Planungszyklen spart Zeit – besonders Forecast wiederholt sich und summiert sich schnell.',jedox_pros:['Schnellere Implementierung','Niedrigere TCO','Excel-Integration nahtlos'],jedox_cons:['BI und Planung getrennt','Operative Komplexität begrenzt'],board_pros:['BI + Planning nativ integriert','Stark bei driver-based Forecast','Überlegene Szenario-Modellierung'],board_cons:['Längere Implementierungszeit','Höhere Investition'],planning_type_coverage:ptc,best_references:refs,key_risk:'Schnittstellen zu Vorsystemen und Verknüpfung der Module frühzeitig definieren.',next_step:'Discovery-Gespräch mit bdg Pre-Sales – Scope, Module und Submodule gemeinsam vertiefen.'};
-}
-
-function fmt(n){return Math.round(n).toLocaleString('de-DE');}
-
-// ── Render ──
-function renderResults(rec){
-  var v=calcValue();
-  var conf=Math.min(100,Math.max(0,+rec.platform_confidence||68));
-  var pc=rec.platform==='Jedox'?'jedox':rec.platform==='BOARD'?'board':'both';
-  var pb=v.pb<=3?'< 3 Monate':v.pb<=12?v.pb+' Monate':Math.round(v.pb/12*10)/10+' Jahre';
-  var totalU=+state.admins+(+state.planners)+(+state.analysts)+(+state.viewers);
-
-  var scopePills={finance:'<span class="sp finance">💰 Finance</span>',people:'<span class="sp people">👥 People</span>',energy:'<span class="sp energy">⚡ Energy</span>',cs:'<span class="sp cs">📞 CS|Control</span>'};
-  var pillsHTML=state.scopeFocus.map(function(k){return scopePills[k]||'';}).join('');
-
-  var mods=''; // legacy fallback unused now
-
-  // Build core/submodule area HTML
-  var areasHTML=(rec.recommended_areas||rec.modules||[]).map(function(area){
-    // Handle both old (modules) and new (recommended_areas) format
-    if(area.name&&!area.area){
-      // Legacy format fallback
-      return '<div class="mi"><div class="mib"></div><div><div class="mn">'+area.name+(area.priority==='hoch'?'<span class="badge-h">Priorität</span>':'')+'</div><div class="mw">'+(area.why||area.area_note||'')+'</div></div></div>';
-    }
-    var coreItems=(area.core_modules||[]).map(function(c){return '<span class="core-chip">'+c+'</span>';}).join('');
-    var subItems=(area.submodules||[]).filter(function(s){return s.priority==='empfohlen'||s.priority!=='optional';}).map(function(s){
-      return '<div class="sub-item"><div class="sub-dot '+(s.priority==='empfohlen'?'sub-rec':'sub-opt')+'"></div><div><span class="sub-name">'+s.name+'</span><span class="sub-why"> – '+s.why+'</span></div></div>';
-    }).join('');
-    var subOptItems=(area.submodules||[]).filter(function(s){return s.priority==='optional';}).map(function(s){
-      return '<div class="sub-item sub-item-opt"><div class="sub-dot sub-opt"></div><div><span class="sub-name">'+s.name+'</span><span class="sub-why"> – '+s.why+'</span></div></div>';
-    }).join('');
-    return '<div class="area-card'+(area.priority==='hoch'?' area-high':'')+'">'+
-      '<div class="area-head">'+
-        '<div class="area-title">'+area.area+(area.priority==='hoch'?'<span class="badge-h">Priorität</span>':'')+'</div>'+
-      '</div>'+
-      (area.area_note?'<div class="area-note">'+area.area_note+'</div>':'')+
-      (coreItems?'<div class="core-row"><span class="core-label">Core</span>'+coreItems+'</div>':'')+
-      (subItems?'<div class="sub-section"><div class="sub-label">Empfohlene Submodule</div>'+subItems+'</div>':'')+
-      (subOptItems?'<div class="sub-section"><div class="sub-label" style="color:#bbb">Optionale Submodule</div>'+subOptItems+'</div>':'')+
-    '</div>';
-  }).join('');
-
-  var ptcHTML=(rec.planning_type_coverage||[]).filter(function(p){return p.status!=='nicht relevant';}).map(function(p){
-    var bc=p.status==='gut abgedeckt'?'bg':p.status==='machbar'?'by':p.status==='Lücke'?'br':'bx';
-    return '<div class="ptc-row"><div class="ptc-icon">'+p.icon+'</div><div class="ptc-body"><div class="ptc-title">'+p.type+'</div><div class="ptc-note">'+p.note+'</div></div><div class="ptc-badge '+bc+'">'+p.status+'</div></div>';
-  }).join('');
-
-  var jPros=(rec.jedox_pros||[]).map(function(p){return '<li class="pc-item pro">'+p+'</li>';}).join('');
-  var jCons=(rec.jedox_cons||[]).map(function(c){return '<li class="pc-item con">'+c+'</li>';}).join('');
-  var bPros=(rec.board_pros||[]).map(function(p){return '<li class="pc-item pro">'+p+'</li>';}).join('');
-  var bCons=(rec.board_cons||[]).map(function(c){return '<li class="pc-item con">'+c+'</li>';}).join('');
-  var refs=(rec.best_references||[]).map(function(r){return '<div class="ri">'+r+'</div>';}).join('');
-
-  // Expand buttons for scopes NOT selected
-  var allScopes=['finance','people','energy','cs'];
-  var scopeNames={finance:'💰 Finance / FP&A',people:'👥 People / HR',energy:'⚡ Energy',cs:'📞 CS|Control'};
-  var missingScopes=allScopes.filter(function(s){return state.scopeFocus.indexOf(s)===-1;});
-  var expandBtns=missingScopes.map(function(s){return '<button class="esb" onclick="activateExpandScope(\''+s+'\',this)">+ '+scopeNames[s]+' hinzufügen</button>';}).join('');
-
-  var goLiveLabels={'lt3m':'< 3 Monate','3-6m':'3–6 Monate','6-12m':'6–12 Monate','gt12m':'> 12 Monate','open':'offen'};
-  var rolloutLabels={'bigbang':'Big Bang','phased':'Phasenweise','pilot':'Pilot-Ansatz','open':'offen'};
-  var prioLabels={'price':'Preis/TCO','speed':'Geschwindigkeit','functionality':'Funktionsumfang','usability':'Usability','performance':'Performance','support':'Support','references':'Referenzen','integration':'Integration'};
-  var timingHTML=state.goLive?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem">'+
-    (state.goLive?'<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:4px 11px;font-size:12px;color:#555">🕐 Go-Live: '+(goLiveLabels[state.goLive]||state.goLive)+'</span>':'')+
-    (state.rollout?'<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:4px 11px;font-size:12px;color:#555">📋 '+(rolloutLabels[state.rollout]||state.rollout)+'</span>':'')+
-    (state.budget_range&&state.budget_range!=='open'?'<span style="background:#fff8ec;border:1px solid #ffd980;border-radius:999px;padding:4px 11px;font-size:12px;color:#a07000">💰 Budget: '+({'lt50':'< €50k','50-150':'€50–150k','150-300':'€150–300k','gt300':'> €300k','none':'kein Budget def.'}[state.budget_range]||state.budget_range)+'</span>':'')+
-    (state.urgentFirst?'<span style="background:#fff0ee;border:1px solid #ffb8b0;border-radius:999px;padding:4px 11px;font-size:12px;color:#b03020">🔥 Dringend: '+state.urgentFirst+'</span>':'')+
-  '</div>':'';
-  var prioHTML=state.priorities.length>0?'<div style="font-size:12px;color:#555;margin-bottom:1rem"><span style="font-weight:500">Entscheidungskriterien: </span>'+state.priorities.map(function(p,i){return '<span style="background:#f5f5f3;border:1px solid #e0e0db;border-radius:999px;padding:3px 9px;font-size:11px;margin-right:4px">'+(i+1)+'. '+(prioLabels[p]||p)+'</span>';}).join('')+'</div>':'';
-
-  document.getElementById('results').innerHTML=
-    '<div class="scope-pills">'+pillsHTML+'</div>'+
-    timingHTML+prioHTML+
-    '<div class="rp '+pc+'"><div class="rl '+pc+'">Empfohlene Plattform</div><div class="rn">'+rec.platform+'</div><div class="rr">'+rec.platform_reasoning+'</div><div class="cb"><div class="cbf" style="width:'+conf+'%"></div></div><div class="ct">Passgenauigkeit: '+conf+'%</div></div>'+
-
-    (rec.phasing_recommendation?'<div class="st">Empfohlene Einführungsreihenfolge</div><div class="nn">'+rec.phasing_recommendation+'</div>':'')+
-
-    (ptcHTML?'<div class="st">Abdeckung pro Planungsbereich</div><div class="pt-coverage">'+ptcHTML+'</div>':'')+
-
-    '<div class="st">Jedox vs. BOARD – für diesen Prospect</div>'+
-    '<div class="pc-grid"><div class="pc-box jb"><div class="pc-head j"><span class="pc-badge-j">Jedox</span></div><ul class="pc-list">'+jPros+jCons+'</ul></div><div class="pc-box bb"><div class="pc-head b"><span class="pc-badge-b">BOARD</span></div><ul class="pc-list">'+bPros+bCons+'</ul></div></div>'+
-    '<div style="font-size:11px;color:#ccc;margin-bottom:.5rem">✓ Vorteil · ✗ Risiko – bezogen auf diesen konkreten Fall</div>'+
-
-    '<hr style="border:none;border-top:1px solid #f0f0ee;margin:1.25rem 0">'+
-
-    '<div class="st">Empfohlene Module & Submodule</div>'+areasHTML+
-    '<div class="st">Zentraler Mehrwert</div><div class="nn">'+(rec.top_value_driver||'–')+'</div>'+
-
-    '<div class="st">Mehrwert-Abschätzung</div>'+
-    '<div class="hero-val"><div class="label">Jährliches Einsparpotenzial</div><div class="amount">€ '+fmt(v.total)+'</div><div class="sub">Vollständig belasteter Satz €'+v.hr+'/h · inkl. AG-Kosten & Overhead · '+v.r.label+'</div></div>'+
-    (v.fSaved>0?'<div class="hl-box blue"><div class="hl-num">€ '+fmt(v.fSaved)+'</div><div class="hl-text"><strong>davon allein aus Forecast-Automatisierung</strong> – wiederholt sich '+({monthly:'12×',quarterly:'4×',adhoc:'2×'}[state.forecast.freq]||'mehrfach')+' pro Jahr.</div></div>':'')+
-    '<div class="hl-box blue"><div class="hl-num">'+v.days+' T</div><div class="hl-text"><strong>'+v.days+' Arbeitstage zurückgewonnen</strong> – ~'+v.dpp+' Tage pro Person und Jahr für strategische Arbeit statt Datenpflege.</div></div>'+
-    '<div class="hl-box amber"><div class="hl-num">'+pb+'</div><div class="hl-text"><strong>Amortisierung in '+pb+'</strong> – bei geschätzten Implementierungskosten von ~€'+fmt(v.impl)+'.</div></div>'+
-    '<div class="hl-box red"><div class="hl-num">€ '+fmt(v.tcoi)+'</div><div class="hl-text"><strong>Kosten des Nichtstuns über 3 Jahre</strong> – ineffiziente Planungsprozesse, Fehler und entgangene Entscheidungsqualität summieren sich.</div></div>'+
-
-    '<div class="st">Aufschlüsselung des Einsparpotenzials</div>'+
-    '<div class="vg">'+
-      '<div class="vc"><div class="vl">Zeitkosten-Einsparung</div><div class="vn">€ '+fmt(v.dirV)+'</div><div class="vno">'+v.savedH+'h eingespart @ €'+v.hr+'/h</div></div>'+
-      '<div class="vc"><div class="vl">Fehler & Rework eliminiert</div><div class="vn">€ '+fmt(v.errV)+'</div><div class="vno">'+(v.isXL?'25%':'10%')+' Fehlerrate · EuSpRIG</div></div>'+
-      '<div class="vc"><div class="vl">Audit & schnellerer Close</div><div class="vn">€ '+fmt(v.auditV)+'</div><div class="vno">Ø 4 Tage schnellerer Jahresabschluss</div></div>'+
-      '<div class="vc"><div class="vl">IT-Konsolidierung</div><div class="vn">€ '+fmt(v.itV)+'</div><div class="vno">Ablösung bestehender Tools & Lizenzen</div></div>'+
-      '<div class="vc"><div class="vl">Entscheidungsqualität & Speed</div><div class="vn">€ '+fmt(v.stratV)+'</div><div class="vno">Schnellere Forecasts, bessere Basis</div></div>'+
-      '<div class="vc hi"><div class="vl">Gesamt pro Jahr</div><div class="vn">€ '+fmt(v.total)+'</div><div class="vno">konservative Schätzung</div></div>'+
-    '</div>'+
-
-    '<div class="st">User-Struktur · '+totalU+' User gesamt</div>'+
-    '<div class="vg"><div class="vc"><div class="vl">Admins</div><div class="vn">'+state.admins+'</div></div><div class="vc"><div class="vl">Planer</div><div class="vn">'+state.planners+'</div></div><div class="vc"><div class="vl">Analysten</div><div class="vn">'+state.analysts+'</div></div><div class="vc"><div class="vl">Viewer</div><div class="vn">'+state.viewers+'</div></div></div>'+
-
-    '<div class="st">Passende Referenzkunden</div><div class="rc">'+refs+'</div>'+
-    '<div class="st">Wichtigste offene Frage</div><div class="nn">'+(rec.key_risk||'–')+'</div>'+
-    '<div class="st">Empfohlener nächster Schritt</div><div class="nn">'+(rec.next_step||'–')+'</div>'+
-
-    (missingScopes.length>0?
-    '<div class="expand-panel"><div class="expand-head" onclick="toggleExpand(this)"><div class="expand-title">🔍 Scope erweitern – weiteren Bereich schnell einschätzen</div><div class="expand-arrow" id="exp-arrow">▼</div></div><div class="expand-body" id="exp-body"><div style="font-size:12px;color:#888;margin-bottom:.75rem">Welchen Bereich möchtest du noch dazunehmen?</div><div class="expand-scope-btns">'+expandBtns+'</div><div id="mini-forms"></div></div></div>':'')+
-
-    '<hr style="border:none;border-top:1px solid #f0f0ee;margin:1.5rem 0">'+
-
-    '<div style="background:#e6f4f0;border:1px solid #9ED8C8;border-radius:12px;padding:1.2rem 1.4rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">'+
-    '<div><div style="font-size:14px;font-weight:600;color:#0F6E56;margin-bottom:.2rem">Erste Aufwandsschätzung erstellen</div>'+
-    '<div style="font-size:12px;color:#5a9e88">PT-Breakdown pro Modul · Lizenzkosten · editierbar · Excel-Export</div></div>'+
-    '<button onclick="goToEffort()" style="padding:10px 20px;background:#0F6E56;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap">Aufwandsschätzung →</button>'+
-    '</div>'+
-
-    '<div class="disclaimer" style="margin-top:1rem">Methodik: Stundensätze = Stepstone/Kienbaum 2024 × 1,45 (AG-Kosten & Overhead). Zeiteinsparung: 55% (Hackett Group / KPMG CPM-Benchmark). Fehlerrate Excel: 25% (EuSpRIG). Koordinationsaufwand: +30%. Alle Werte konservativ – dienen als Gesprächsgrundlage.</div>'+
-    '<div style="margin-top:1.25rem"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
-}
-
-// ── Effort Estimation Page ──
-var effortState={pkg:'premium',rate:1650,discount:0.10};
-
-function renderEffortPage(){
-  var pkg=effortState.pkg;
-  var rate=effortState.rate;
-  var disc=effortState.disc||0;
-  var netRate=Math.round(rate*(1-disc));
-
-  var sf=state.scopeFocus;
-  var ss=state.sourceSystems;
-  var ent=state.entities;
-  var entMult=ent==='gt15'?1.4:ent==='6-15'?1.2:ent==='2-5'?1.05:1.0;
-  var wfAdd=state.workflowComplexity==='high'?2:state.workflowComplexity==='medium'?1:0;
-  var totalUsers=+state.admins+(+state.planners)+(+state.analysts)+(+state.viewers);
-  var urgency=state.goLive==='lt3m'?1.2:1.0;
-
-  // Package multipliers
-  var pkgMult={essential:0.75,premium:1.0,enterprise:1.35}[pkg]||1.0;
-
-  // ── LIZENZPREISE (annual recurring) ──
-  var licPrices={
-    finance:{essential:30000,premium:40000,enterprise:50000},
-    cashflow:{essential:20000,premium:25000,enterprise:30000},
-    people:{essential:15000,premium:20000,enterprise:25000},
-    energy:{essential:20000,premium:25000,enterprise:30000},
-    cs:{essential:15000,premium:20000,enterprise:25000},
-    konsolidierung:{essential:10000,premium:15000,enterprise:20000}
-  };
-
-  // ── BUILD PT PER MODULE (based on real bdg templates) ──
-  var diMap={'sap_s4':12,'sap_ecc':14,'dynamics':8,'datev':5,'navision':6,'sage':4,
-    'workday':7,'sap_hcm':8,'personio':4,'other_hr':5,
-    'power_bi':3,'tableau':3,'excel_csv':2,'other_erp':7,'crm':4,'other_input':3};
-  var diLabels={'sap_s4':'SAP S/4HANA','sap_ecc':'SAP ECC/R3','dynamics':'MS Dynamics',
-    'datev':'DATEV','navision':'Navision/BC','sage':'Sage','workday':'Workday',
-    'sap_hcm':'SAP HCM/SF','personio':'Personio','other_hr':'Sonst. HR',
-    'power_bi':'Power BI','tableau':'Tableau','excel_csv':'Excel/CSV',
-    'other_erp':'Sonst. ERP','crm':'CRM','other_input':state.otherInputTool||'Sonst. Tool'};
-
-  // Collect all rows for table and Excel
-  var rows=[];
-  var licRows=[];
-
-  function addRow(cat,label,pt,note,isSec){
-    rows.push({cat:cat,label:label,pt:Math.round(pt*pkgMult),note:note||'',isSec:isSec||false});
-  }
-  function addLic(module,label){
-    var p=licPrices[module];
-    if(!p)return;
-    licRows.push({label:label,annual:p[pkg]||p.premium});
-  }
-
-  // 1. Scoping
-  addRow('Scoping','Kick-Off & Projektsetup',2,'Projektdokumente, Tools, Kommunikationsstruktur');
-  addRow('Scoping','Workshops & Anforderungskonzept',state.entities==='gt15'?5:state.workflowComplexity==='high'?4:3,'Scoping, Systemarchitektur, Dokumentation');
-
-  // 2. Datenintegration
-  ss.forEach(function(s){
-    if(diMap[s])addRow('Datenintegration',diLabels[s]||s,diMap[s],'Master- & Faktdaten Anbindung');
-  });
-  if(state.otherInputTool&&ss.indexOf('other_input')>-1)
-    rows[rows.length-1].label=state.otherInputTool;
-  if(ss.length===0||ss.indexOf('unknown')>-1)
-    addRow('Datenintegration','Datenintegration (noch zu klären)',8,'Vorsysteme noch offen');
-
-  // 3. bdgONE Finance
-  if(sf.indexOf('finance')>-1){
-    addRow('bdgONE Finance','Navigation, Design & App-Cockpit',3,'Standardlayout, Corporate Design');
-    addRow('bdgONE Finance','Berechtigungen & Planungsworkflow',3,'Standardrollen, Status- & Berechtigungssteuerung');
-    addRow('bdgONE Finance','Integrierte Finanzplanung (GuV, Bilanz, CF)',Math.round(10*entMult),'inkl. Überleitungslogik, Zahlungsziele, Versionierung');
-    if(state.budget.dir==='bottomup'||state.budget.dir==='hybrid')
-      addRow('bdgONE Finance','Top-Down / Bottom-Up Planungsprozess',3,'Kombinierte Planungsrunden');
-    if(state.forecast.status!=='no'&&state.forecast.status!=='')
-      addRow('bdgONE Finance','Rolling Forecast'+(state.forecast.method==='driver'?' (treiber-basiert)':''),state.forecast.method==='driver'?8:4,
-        {monthly:'monatlich',quarterly:'quartalsweise'}[state.forecast.freq]||'');
-    if(state.mfp.status!=='no'&&state.mfp.status!==''){
-      var mfpPT=4+(state.mfp.scenarios==='wanted'||state.mfp.scenarios==='yes'?3:0);
-      addRow('bdgONE Finance','Mittelfristplanung'+(state.mfp.horizon?' ('+state.mfp.horizon+')':''),mfpPT,
-        state.mfp.link==='no'?'Verknüpfung zu Budget noch zu klären':'verknüpft mit Jahresplanung');
-    }
-    if(state.scope.indexOf('investitionen')>-1)
-      addRow('bdgONE Finance','CAPEX / Investitionsplanung',6,'inkl. AFA-Berechnung & Buchwertentwicklung');
-    if(state.scope.indexOf('profitability')>-1)
-      addRow('bdgONE Finance','Allocation / Sekundärkostenplanung',7,'Innerbetriebliche Leistungsverrechnung bis 8 Zyklen');
-    addRow('bdgONE Finance','Financial Dashboards & Statements',Math.round(3+(+state.analysts||3)*0.8),'GuV, Bilanz, CF-Reports & individuelle Dashboards');
-    if(state.scope.indexOf('konsolidierung')>-1){
-      addRow('bdgONE Finance','Managementkonsolidierung',Math.round(10*entMult),'Intercompany, Eliminierung, '+ent+' Einheiten');
-      addLic('konsolidierung','Konsolidierung Add-on (jährlich)');
-    }
-    addLic('finance','bdgONE Finance / PnL (jährlich)');
-    addLic('cashflow','bdgONE Cashflow (jährlich)');
-  }
-
-  // 4. bdgONE People
-  if(sf.indexOf('people')>-1){
-    addRow('bdgONE People','Personalkosten & FTE-Planung',Math.round(8*(state.people.planners>5?1.2:1.0)),'inkl. Gehalt, Nebenkosten, Boni');
-    addRow('bdgONE People','Headcount & Vacancy-Planung',3,'Eintritte, Austritte, Backfills, Elternzeit');
-    addRow('bdgONE People','Kostenstellenplanung & Schnittstelle Finance',3,'automatischer Transfer Personalkosten → GuV');
-    if(state.scope.indexOf('recruiting')>-1)
-      addRow('bdgONE People','Extension: Recruiting-Planung',4,'Vakanzen, Hiring Plan, Backfill-Logik');
-    if(state.scope.indexOf('capacity')>-1)
-      addRow('bdgONE People','Extension: Personaleinsatz / Schichtplanung',5,'Kapazitätsplanung je Campaign/Client');
-    addLic('people','bdgONE People (jährlich)');
-  }
-
-  // 5. bdgONE Energy
-  if(sf.indexOf('energy')>-1){
-    addRow('bdgONE Energy','Tarif- & Preisplanung',6,'Preismodelle, Staffeln, Produktvarianten');
-    addRow('bdgONE Energy','Mengen- & Lastprofilplanung',6,'Lastprofile, Verbräuche, Mengenplanung');
-    if(state.scope.indexOf('netz')>-1)
-      addRow('bdgONE Energy','Netzkosten-Planung',5,'Netzentgelte, Abgaben, Umlagen');
-    addLic('energy','bdgONE Energy (jährlich)');
-  }
-
-  // 6. CS|Control
-  if(sf.indexOf('cs')>-1){
-    addRow('CS|Control','Kapazitätsplanung je Campaign/Client',5,'FTE-Bedarf, Peaks, Unterauslastung');
-    addRow('CS|Control','KPI-Dashboards (Calls, CSAT, Produktivität)',5,'Echtzeit-KPIs, Schwellwert-Alerts');
-    addRow('CS|Control','Cost-to-Serve je Client',3,'Kostenträgerrechnung');
-    addRow('CS|Control','Finance-Brücke / P&L-Integration',4,'Transfer in Finance-GuV');
-    addLic('cs','CS|Control (jährlich)');
-  }
-
-  // 7. Querschnitt
-  addRow('Querschnitt','Berechtigungskonzept & User-Setup',Math.round(1+totalUsers/25),totalUsers+' User gesamt');
-  addRow('Querschnitt','Key-User Training & Dokumentation',Math.round(2+totalUsers/40),'');
-  addRow('Querschnitt','UAT & Abnahmeunterstützung',3,'');
-
-  // Calc totals
-  var implPT=rows.reduce(function(a,r){return a+r.pt;},0);
-  if(urgency>1)implPT=Math.round(implPT*urgency);
-  var pmPT=Math.round(implPT*0.18);
-  var hyperPT=Math.round(implPT*0.10);
-  var grandPT=implPT+pmPT+hyperPT;
-  var grandImpl=grandPT*netRate;
-  var totalLic=licRows.reduce(function(a,r){return a+r.annual;},0);
-  var totalBudget=grandImpl+totalLic;
-
-  // Build HTML
-  var html='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">'+
-    '<div><div style="font-size:20px;font-weight:500;color:#1a1a18;margin-bottom:.2rem">Aufwandsschätzung</div>'+
-    '<div style="font-size:12px;color:#999">Indikativ · intern · basierend auf bdg-Projektvorlagen</div></div>'+
-    '<button onclick="back()" style="padding:8px 14px;border:1px solid #e0e0db;border-radius:8px;font-size:12px;cursor:pointer;background:#f5f5f3;font-family:inherit;color:#555">← Zurück zur Empfehlung</button>'+
-  '</div>'+
-
-  // Package + Rate selector
-  '<div style="background:#f8f8f6;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.25rem;border:1px solid #e8e8e5">'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:.85rem">'+
-      ['essential','premium','enterprise'].map(function(p){
-        var label={'essential':'Essential','premium':'Premium','enterprise':'Enterprise'}[p];
-        var active=pkg===p;
-        return '<button onclick="setEffortPkg(\''+p+'\')" style="padding:8px;border-radius:8px;border:1.5px solid '+(active?'#1D9E75':'#e0e0db')+';background:'+(active?'#e6f4f0':'#fff')+';color:'+(active?'#0F6E56':'#666')+';font-size:12px;font-weight:'+(active?'600':'400')+';cursor:pointer;font-family:inherit">'+label+'</button>';
-      }).join('')+
-    '</div>'+
-    '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">'+
-      '<div style="font-size:12px;color:#888;flex-shrink:0">Tagessatz (€):</div>'+
-      '<input id="rate-input" type="number" value="'+rate+'" min="500" max="5000" step="50" '+
-        'oninput="effortState.rate=+this.value;effortState.disc=0;document.getElementById(\'net-rate\').textContent=this.value;renderEffortPage()" '+
-        'style="width:90px;padding:5px 8px;border:1px solid #e0e0db;border-radius:6px;font-size:13px;font-family:inherit">'+
-      '<div style="font-size:12px;color:#aaa">· Listenpreis: €1.650 · Std.-Rabatt 10%: €1.485</div>'+
-      '<button onclick="effortState.rate=1485;renderEffortPage()" style="font-size:11px;color:#0F6E56;border:none;background:none;cursor:pointer;font-family:inherit;text-decoration:underline">Rabatt anwenden</button>'+
-    '</div>'+
-  '</div>'+
-
-  // Summary boxes
-  '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1.25rem">'+
-    '<div style="background:linear-gradient(135deg,#0F6E56,#1D9E75);border-radius:12px;padding:1rem;text-align:center">'+
-      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:.3rem">Implementierung</div>'+
-      '<div style="font-size:26px;font-weight:600;color:#fff">'+grandPT+' PT</div>'+
-      '<div style="font-size:12px;color:rgba(255,255,255,.7)">€ '+fmt(grandImpl)+'</div>'+
-    '</div>'+
-    '<div style="background:#e8f4ff;border:1px solid #b0d4ff;border-radius:12px;padding:1rem;text-align:center">'+
-      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#185FA5;margin-bottom:.3rem">Lizenz p.a.</div>'+
-      '<div style="font-size:26px;font-weight:600;color:#185FA5">€ '+fmt(totalLic)+'</div>'+
-      '<div style="font-size:12px;color:#888">wiederkehrend / Jahr</div>'+
-    '</div>'+
-    '<div style="background:#fff8ec;border:1px solid #ffd980;border-radius:12px;padding:1rem;text-align:center">'+
-      '<div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a07000;margin-bottom:.3rem">Gesamt Jahr 1</div>'+
-      '<div style="font-size:26px;font-weight:600;color:#a07000">€ '+fmt(totalBudget)+'</div>'+
-      '<div style="font-size:12px;color:#888">Impl. + Lizenz</div>'+
-    '</div>'+
-  '</div>'+
-
-  // License table
-  (licRows.length>0?
-  '<div style="margin-bottom:1rem"><div class="st">Lizenzkosten (jährlich, wiederkehrend)</div>'+
-  '<table class="eff-table"><thead><tr><th>Produkt / Modul</th><th class="r">Paket</th><th class="r">Listenpreis p.a.</th></tr></thead><tbody>'+
-  licRows.map(function(r){
-    return '<tr><td>'+r.label+'</td><td class="r" style="font-size:11px;color:#888">'+{essential:'Essential',premium:'Premium',enterprise:'Enterprise'}[pkg]+'</td>'+
-    '<td class="r">€ '+fmt(r.annual)+'</td></tr>';
-  }).join('')+
-  '<tr class="total-row"><td><strong>Lizenz gesamt</strong></td><td></td><td class="r"><strong>€ '+fmt(totalLic)+'</strong> / Jahr</td></tr>'+
-  '</tbody></table></div>':'')+ 
-
-  // Implementation table
-  '<div class="st">Implementierungsleistung (einmalig) · Tagessatz €'+fmt(rate)+'</div>'+
-  '<table class="eff-table" id="eff-tbl"><thead><tr><th>Kategorie / Leistungsposition</th><th class="r" style="width:60px">PT</th><th class="r" style="width:100px">Betrag</th></tr></thead><tbody>';
-
-  var curCat='';
-  rows.forEach(function(r,i){
-    if(r.cat!==curCat){
-      html+='<tr class="section-row"><td colspan="3">'+r.cat+'</td></tr>';
-      curCat=r.cat;
-    }
-    var id='ep_'+i;
-    html+='<tr><td>'+r.label+(r.note?'<div class="eff-note">'+r.note+'</div>':'')+'</td>'+
-      '<td class="r"><input class="eff-input" id="'+id+'" type="number" value="'+r.pt+'" min="0" max="999" oninput="recalcEffort()"></td>'+
-      '<td class="r eff-eur" data-id="'+id+'">€ '+fmt(r.pt*rate)+'</td></tr>';
-  });
-
-  html+='<tr class="total-row"><td><strong>Implementierung (netto)</strong></td>'+
-    '<td class="r"><strong id="impl_total">'+implPT+'</strong> PT</td>'+
-    '<td class="r"><strong id="impl_eur">€ '+fmt(implPT*rate)+'</strong></td></tr>';
-  if(urgency>1)html+='<tr><td colspan="3" style="font-size:11px;color:#e05a3a;padding:.4rem .6rem">⚡ Urgency-Zuschlag +20% (Go-Live &lt; 3 Monate) bereits eingerechnet</td></tr>';
-  html+='<tr class="pm-row"><td>Projektmanagement (18%)</td><td class="r" id="pm_days">'+pmPT+' PT</td><td class="r" id="pm_eur">€ '+fmt(pmPT*rate)+'</td></tr>';
-  html+='<tr class="pm-row"><td>Go-Live & Hypercare (10%)</td><td class="r" id="hc_days">'+hyperPT+' PT</td><td class="r" id="hc_eur">€ '+fmt(hyperPT*rate)+'</td></tr>';
-  html+='<tr class="total-row"><td><strong>GESAMT Implementierung</strong></td><td class="r"><strong id="grand_total">'+grandPT+'</strong> PT</td><td class="r"><strong id="grand_eur">€ '+fmt(grandPT*rate)+'</strong></td></tr>';
-  html+='</tbody></table>';
-
-  html+='<div style="display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap">'+
-    '<button onclick="exportEffortExcel()" style="padding:9px 18px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">📥 Als Excel exportieren</button>'+
-    '<button onclick="exportEffortCopy()" style="padding:9px 18px;background:#f5f5f3;color:#555;border:1px solid #e0e0db;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">📋 In Zwischenablage kopieren</button>'+
-  '</div>'+
-  '<div class="eff-ass-note" style="margin-top:.75rem">⚠️ Erste indikative Schätzung auf Basis der Assessment-Angaben und bdg-Projektvorlagen (Recaro, KWS, Globogate). Tagessatz Listenpreis €1.650 · Standard-Rabatt 10%. PM: 18% · Hypercare: 10% der Implementierung. Alle Werte intern und nicht verbindlich – für ein belastbares Angebot ist ein Scoping-Workshop erforderlich.</div>';
-
-  html+='<div style="margin-top:1.25rem;display:flex;gap:10px"><button class="rbtn" onclick="restart()">↺ Neues Assessment starten</button></div>';
-
-  document.getElementById('effort-content').innerHTML=html;
-  document.getElementById('pf').style.width='100%';
-  document.getElementById('si').textContent='Aufwandsschätzung';
-}
-
-function setEffortPkg(pkg){
-  effortState.pkg=pkg;
-  renderEffortPage();
-}
-
-function recalcEffort(){
-  var rate=effortState.rate||1650;
-  var implPT=0;
-  document.querySelectorAll('.eff-input').forEach(function(inp){
-    var days=Math.max(0,+inp.value||0);
-    var eurEl=document.querySelector('.eff-eur[data-id="'+inp.id+'"]');
-    if(eurEl)eurEl.textContent='€ '+fmt(days*rate);
-    implPT+=days;
-  });
-  var pm=Math.round(implPT*0.18);
-  var hc=Math.round(implPT*0.10);
-  var grand=implPT+pm+hc;
-  var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
-  set('impl_total',implPT);set('impl_eur','€ '+fmt(implPT*rate));
-  set('pm_days',pm+' PT');set('pm_eur','€ '+fmt(pm*rate));
-  set('hc_days',hc+' PT');set('hc_eur','€ '+fmt(hc*rate));
-  set('grand_total',grand);set('grand_eur','€ '+fmt(grand*rate));
-}
-
-function exportEffortExcel(){
-  var rate=effortState.rate||1650;
-  var rows=[['Kategorie','Leistungsposition','Anmerkung','PT','Tagessatz (€)','Betrag (€)']];
-  document.querySelectorAll('#eff-tbl tbody tr').forEach(function(tr){
-    if(tr.classList.contains('section-row')){
-      rows.push([tr.cells[0].textContent,'','','','','']);
-    }else if(tr.classList.contains('total-row')||tr.classList.contains('pm-row')){
-      var cells=tr.cells;
-      if(cells.length>=3)rows.push(['',cells[0].textContent.trim(),'',cells[1].textContent.replace(/\s*PT/,'').trim(),'',cells[2].textContent.trim()]);
-    }else{
-      var inp=tr.querySelector('.eff-input');
-      if(inp){
-        var label=tr.cells[0].childNodes[0].textContent.trim();
-        var note=tr.cells[0].querySelector('.eff-note');
-        var pt=+inp.value;
-        rows.push(['',label,note?note.textContent:'',pt,rate,pt*rate]);
-      }
-    }
-  });
-  // Add license section
-  rows.push(['','','','','','']);
-  rows.push(['LIZENZKOSTEN (jährlich)','','','','','']);
-  document.querySelectorAll('.eff-table:not(#eff-tbl) tbody tr').forEach(function(tr){
-    if(tr.classList.contains('total-row')){
-      rows.push(['',tr.cells[0].textContent.trim(),'','','',tr.cells[2].textContent.trim()]);
-    }else if(!tr.classList.contains('section-row')){
-      var cells=tr.cells;
-      if(cells.length>=3)rows.push(['',cells[0].textContent.trim(),'','','',cells[2].textContent.trim()]);
-    }
-  });
-  rows.push(['','','','','','']);
-  rows.push(['GESAMT JAHR 1 (Impl. + Lizenz)','','','','','']);
-
-  // Build CSV
-  var csv=rows.map(function(r){
-    return r.map(function(c){
-      var s=String(c).replace(/"/g,'""');
-      return (s.indexOf(',')>-1||s.indexOf('"')>-1||s.indexOf('\n')>-1)?'"'+s+'"':s;
-    }).join(';');
-  }).join('\n');
-
-  // Add BOM for Excel German
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
-  a.download='bdg_Aufwandsschaetzung_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function exportEffortCopy(){
-  var rate=effortState.rate||1650;
-  var lines=['bdg Aufwandsschätzung – '+new Date().toLocaleDateString('de-DE'),''];
-  lines.push('Paket: '+{essential:'Essential',premium:'Premium',enterprise:'Enterprise'}[effortState.pkg]);
-  lines.push('Tagessatz: €'+rate);
-  lines.push('');
-  document.querySelectorAll('#eff-tbl tbody tr').forEach(function(tr){
-    if(tr.classList.contains('section-row')){lines.push('\n'+tr.cells[0].textContent);}
-    else{
-      var inp=tr.querySelector('.eff-input');
-      if(inp){var label=tr.cells[0].childNodes[0].textContent.trim();lines.push('  '+label+': '+inp.value+' PT = €'+fmt(+inp.value*rate));}
-      else if(tr.cells.length>=3){lines.push('  '+tr.cells[0].textContent.trim()+': '+tr.cells[1].textContent.trim()+' = '+tr.cells[2].textContent.trim());}
-    }
-  });
-  navigator.clipboard.writeText(lines.join('\n')).then(function(){
-    var btn=document.querySelector('[onclick="exportEffortCopy()"]');
-    if(btn){btn.textContent='✓ Kopiert!';setTimeout(function(){btn.textContent='📋 In Zwischenablage kopieren';},2000);}
+function setStar(n){
+  starRating=n;
+  document.querySelectorAll('.star').forEach(function(s,i){
+    s.classList.toggle('on',i<n);
   });
 }
 
-function buildEffortTable(){return '';} // legacy stub
+function g(id){return(document.getElementById(id)||{}).value||'';}
 
-function toggleExpand(head){
-  var body=document.getElementById('exp-body');
-  var arrow=document.getElementById('exp-arrow');
-  body.classList.toggle('open');
-  arrow.classList.toggle('open');
-}
-
-function activateExpandScope(scope,btn){
-  btn.classList.add('on');
+async function saveToNotion(){
+  var btn=document.getElementById('save-btn');
+  var status=document.getElementById('save-status');
   btn.disabled=true;
-  var mf=document.getElementById('mini-forms');
-  var forms={
-    finance:'<div class="mini-form visible" id="mini-finance"><div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:.75rem">💰 Finance / FP&A – Schnelleinschätzung</div><div class="mini-field"><label>Wie lange dauert die Jahresplanung?</label><div class="sw-row"><input type="range" min="1" max="16" value="4" step="1" oninput="state.budget.weeks=+this.value;this.nextElementSibling.textContent=this.value+\' Wochen\'"><div class="sv" style="min-width:70px">4 Wochen</div></div></div><div class="mini-field"><label>Wie viele Personen sind beteiligt?</label><div class="sw-row"><input type="range" min="1" max="30" value="5" step="1" oninput="state.budget.people=+this.value;this.nextElementSibling.textContent=this.value+\' Personen\'"><div class="sv" style="min-width:80px">5 Personen</div></div></div><div class="mini-field"><label>Gibt es einen Rolling Forecast?</label><div class="chips"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.forecast.status=\'excel\';state.forecast.freq=\'monthly\';state.forecast.people=3;state.forecast.hoursPerCycle=4;pick(this,\'_fc\',\'y\')">Ja, monatlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.forecast.status=\'excel\';state.forecast.freq=\'quarterly\';state.forecast.people=3;state.forecast.hoursPerCycle=4;pick(this,\'_fc\',\'q\')">Ja, quartalsweise</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.forecast.status=\'no\';pick(this,\'_fc\',\'n\')">Kein Forecast</button></div></div><button class="btn btnp" style="margin-top:.75rem;padding:8px 18px;font-size:12px" onclick="recomputeExpand()">Einschätzung aktualisieren →</button></div>',
-    people:'<div class="mini-form visible" id="mini-people"><div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:.75rem">👥 People / HR – Schnelleinschätzung</div><div class="mini-field"><label>Wie viele Personen planen Personalkosten / FTE?</label><div class="sw-row"><input type="range" min="1" max="15" value="3" step="1" oninput="state.people.planners=+this.value;this.nextElementSibling.textContent=this.value+\' Personen\'"><div class="sv" style="min-width:80px">3 Personen</div></div></div><div class="mini-field"><label>Planungsfrequenz</label><div class="chips"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.people.freq=\'annual\';pick(this,\'_pf\',\'a\')">Jährlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.people.freq=\'semi\';pick(this,\'_pf\',\'s\')">Halbjährlich</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="state.people.freq=\'rolling\';pick(this,\'_pf\',\'r\')">Rolling</button></div></div><button class="btn btnp" style="margin-top:.75rem;padding:8px 18px;font-size:12px" onclick="recomputeExpand()">Einschätzung aktualisieren →</button></div>',
-    energy:'<div class="mini-form visible" id="mini-energy"><div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:.75rem">⚡ Energy – Schnelleinschätzung</div><div class="mini-field"><label>Was soll geplant werden?</label><div class="chips"><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pick(this,\'scope\',\'energie\',true)">Tarife / Preise</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pick(this,\'scope\',\'mengen\',true)">Mengen / Lastprofile</button><button class="chip" style="font-size:11px;padding:5px 10px" onclick="pick(this,\'scope\',\'netz\',true)">Netzkosten</button></div></div><button class="btn btnp" style="margin-top:.75rem;padding:8px 18px;font-size:12px" onclick="recomputeExpand()">Einschätzung aktualisieren →</button></div>',
-    cs:'<div class="mini-form visible" id="mini-cs"><div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:.75rem">📞 CS|Control – Schnelleinschätzung</div><div class="mini-field"><label>Wie viele Agents / CS-Mitarbeiter?</label><div class="sw-row"><input type="range" min="10" max="2000" value="100" step="10" oninput="state.cs.agents=+this.value;this.nextElementSibling.textContent=this.value+\' MA\'"><div class="sv" style="min-width:70px">100 MA</div></div></div><button class="btn btnp" style="margin-top:.75rem;padding:8px 18px;font-size:12px" onclick="recomputeExpand()">Einschätzung aktualisieren →</button></div>'
+  btn.innerHTML='<span>⏳</span> Wird gespeichert...';
+  status.className='save-status';
+
+  var payload={
+    company:g('company')||'Unbekannt',
+    contact:g('contact'),
+    contact_role:g('contact_role'),
+    decision_maker:g('decision_maker'),
+    industry:g('industry'),
+    employees:g('employees'),
+    scope:selectedScope.join(', '),
+    scope_notes:g('scope_notes'),
+    pains:selectedPains.join(' | '),
+    trigger:g('trigger'),
+    current_tool:g('current_tool'),
+    go_live:g('go_live'),
+    source_systems:g('source_systems'),
+    planners:g('planners'),
+    budget_range:g('budget_range'),
+    priorities:selectedPrios.join(' > '),
+    decision_process:g('decision_process'),
+    star_rating:starRating,
+    notes:g('notes'),
+    misc:g('misc'),
+    next_step:g('next_step'),
+    saved_at:new Date().toLocaleString('de-DE')
   };
-  if(forms[scope]){
-    state.scopeFocus.push(scope);
-    mf.innerHTML=(mf.innerHTML||'')+forms[scope];
+
+  try{
+    var resp=await fetch('https://bdg-one.app.n8n.cloud/webhook/bdg-discovery-save',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    if(resp.ok){
+      status.textContent='✓ Erfolgreich in Notion gespeichert!';
+      status.className='save-status ok';
+      document.getElementById('saved-badge').classList.add('show');
+      btn.innerHTML='<span>✓</span> Gespeichert';
+    }else{
+      throw new Error('HTTP '+resp.status);
+    }
+  }catch(e){
+    // Fallback: Als JSON zum Kopieren anzeigen
+    status.innerHTML='⚠️ n8n nicht erreichbar – <a href="#" onclick="copyJSON(event)" style="color:#e05a3a">JSON kopieren</a> und manuell in Notion einfügen';
+    status.className='save-status err';
+    btn.innerHTML='<span>💾</span> In Notion speichern';
+    window._fallbackPayload=payload;
   }
+  btn.disabled=false;
 }
 
-function recalcEffort(){
-  var RATE=1400;
-  var total=0;
-  document.querySelectorAll('.eff-input').forEach(function(inp){
-    var days=Math.max(0,+inp.value||0);
-    var eurEl=document.querySelector('.eff-eur[data-id="'+inp.id+'"]');
-    if(eurEl)eurEl.textContent='€ '+fmt(days*RATE);
-    // Only count non-PM/hypercare rows
-    var tr=inp.closest('tr');
-    if(tr&&!tr.classList.contains('pm-row')&&!tr.classList.contains('total-row'))total+=days;
+function copyJSON(e){
+  e.preventDefault();
+  navigator.clipboard.writeText(JSON.stringify(window._fallbackPayload,null,2)).then(function(){
+    alert('JSON kopiert! Du kannst es manuell in Notion einfügen.');
   });
-  var pm=Math.round(total*0.15);
-  var hc=Math.round(total*0.10);
-  var grand=total+pm+hc;
-  var implEl=document.getElementById('impl_total');if(implEl)implEl.textContent=total;
-  var implEurEl=document.getElementById('impl_eur');if(implEurEl)implEurEl.textContent='€ '+fmt(total*RATE);
-  var pmEl=document.getElementById('pm_days');if(pmEl)pmEl.textContent=pm+' PT';
-  var pmEurEl=document.getElementById('pm_eur');if(pmEurEl)pmEurEl.textContent='€ '+fmt(pm*RATE);
-  var hcEl=document.getElementById('hc_days');if(hcEl)hcEl.textContent=hc+' PT';
-  var hcEurEl=document.getElementById('hc_eur');if(hcEurEl)hcEurEl.textContent='€ '+fmt(hc*RATE);
-  var gtEl=document.getElementById('grand_total');if(gtEl)gtEl.textContent=grand;
-  var gtEurEl=document.getElementById('grand_eur');if(gtEurEl)gtEurEl.textContent='€ '+fmt(grand*RATE);
-  var mainEl=document.getElementById('main_total');if(mainEl)mainEl.textContent=grand+' PT';
-}
-
-function recomputeExpand(){
-  var v=calcValue();
-  var heroEl=document.querySelector('.hero-val .amount');
-  if(heroEl)heroEl.textContent='€ '+fmt(v.total);
-  var subEl=document.querySelector('.hero-val .sub');
-  if(subEl)subEl.textContent='Basierend auf gewähltem Scope · Ø €'+v.hr+'/h ('+v.r.label+')';
-  // Update scope pills
-  var pillsEl=document.querySelector('.scope-pills');
-  var scopePills={finance:'<span class="sp finance">💰 Finance</span>',people:'<span class="sp people">👥 People</span>',energy:'<span class="sp energy">⚡ Energy</span>',cs:'<span class="sp cs">📞 CS|Control</span>'};
-  if(pillsEl)pillsEl.innerHTML=state.scopeFocus.map(function(k){return scopePills[k]||'';}).join('');
 }
 </script>
 </body>
