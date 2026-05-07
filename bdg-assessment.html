@@ -143,9 +143,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="text" id="decision_maker" value="Rüdiger Wolf (GF)" placeholder="Name, Rolle">
       </div>
     </div>
+    <div class="field full" style="margin-top:4px">
+      <label>Notizen zum Unternehmen</label>
+      <textarea id="notes_company" placeholder="z.B. inhabergeführt, gerade gewachsen, neuer CFO..." style="min-height:56px"></textarea>
+    </div>
   </div>
-
-  <!-- SCOPE -->
   <div class="card">
     <div class="card-title">🎯 Was wird gesucht?</div>
     <div class="ql">Planungsbereiche (Mehrfachauswahl)</div>
@@ -175,6 +177,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <label>Was genau wird gesucht / was wurde gesagt?</label>
       <textarea id="scope_notes" placeholder="z.B. &quot;wir wollen endlich aus Excel raus&quot;, &quot;CFO will monatliches Reporting automatisieren&quot;..."></textarea>
     </div>
+    <div class="field full" style="margin-top:8px">
+      <label>Notizen zu Scope & Anforderungen</label>
+      <textarea id="notes_scope" placeholder="Weitere Details, Wünsche, Einschränkungen..." style="min-height:56px"></textarea>
+    </div>
   </div>
 
   <!-- PAIN POINTS -->
@@ -194,6 +200,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="field full" style="margin-top:10px">
       <label>Auslöser – warum suchen sie jetzt?</label>
       <textarea id="trigger" placeholder="z.B. Wachstum, Systemablösung, neuer CFO, Audit-Vorbereitung..."></textarea>
+    </div>
+    <div class="field full" style="margin-top:8px">
+      <label>Notizen zu Pain Points & Ausgangslage</label>
+      <textarea id="notes_pains" placeholder="Zitate, Kontext, was besonders betont wurde..." style="min-height:56px"></textarea>
     </div>
   </div>
 
@@ -246,9 +256,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </select>
       </div>
     </div>
+    <div class="field full" style="margin-top:8px">
+      <label>Notizen zur aktuellen Planung</label>
+      <textarea id="notes_planning" placeholder="Wie läuft es heute ab? Wer macht was? Besonderheiten..." style="min-height:56px"></textarea>
+    </div>
   </div>
-
-  <!-- ENTSCHEIDUNG -->
   <div class="card">
     <div class="card-title">🤝 Entscheidungsprozess</div>
     <div class="ql" style="margin-bottom:.5rem">Was ist bei der Entscheidung wichtig? (Reihenfolge = Priorität)</div>
@@ -278,6 +290,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="star" onclick="setStar(5)">★</button>
       </div>
       <div style="font-size:11px;color:#bbb;margin-top:.3rem">1 = sehr früh · 5 = sehr kaufbereit</div>
+    </div>
+    <div class="field full" style="margin-top:12px">
+      <label>Notizen zum Entscheidungsprozess</label>
+      <textarea id="notes_decision" placeholder="Wer hat noch Einfluss? Welche Bedenken wurden geäußert? Timeline?" style="min-height:56px"></textarea>
     </div>
   </div>
 
@@ -384,6 +400,11 @@ async function saveToNotion(){
     star_rating:starRating,
     notes:g('notes'),
     misc:g('misc'),
+    notes_company:g('notes_company'),
+    notes_scope:g('notes_scope'),
+    notes_pains:g('notes_pains'),
+    notes_planning:g('notes_planning'),
+    notes_decision:g('notes_decision'),
     next_step:g('next_step'),
     saved_at:new Date().toLocaleString('de-DE')
   };
